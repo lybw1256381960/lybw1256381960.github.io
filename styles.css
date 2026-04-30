@@ -91,7 +91,7 @@ ul { list-style: none; }
     box-shadow: var(--glass-shadow);
     position: relative;
     overflow: hidden;
-    transition: transform 0.4s cubic-bezier(.25,.46,.45,.94), box-shadow 0.4s ease, border-color 0.3s ease;
+    transition: transform 0.55s cubic-bezier(.22,.61,.36,1), box-shadow 0.55s cubic-bezier(.22,.61,.36,1), border-color 0.4s ease;
 }
 
 /* 虹彩反射层 */
@@ -108,7 +108,7 @@ ul { list-style: none; }
         rgba(255,255,255,0) 100%
     );
     opacity: 0;
-    transition: opacity 0.5s ease;
+    transition: opacity 0.6s cubic-bezier(.22,.61,.36,1);
     pointer-events: none; z-index: 1;
 }
 
@@ -118,20 +118,20 @@ ul { list-style: none; }
 .glass-panel::after {
     content: "";
     position: absolute;
-    width: 200px; height: 200px;
+    width: 260px; height: 260px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(0,220,200,0.18), transparent 70%);
+    background: radial-gradient(circle, rgba(0,220,200,0.12), transparent 70%);
     pointer-events: none; z-index: 2;
     opacity: 0;
-    transition: opacity 0.4s ease;
+    transition: opacity 0.5s cubic-bezier(.22,.61,.36,1);
     transform: translate(-50%, -50%);
     left: var(--mx, 50%); top: var(--my, 50%);
 }
 .glass-panel:hover::after { opacity: 1; }
 
 .glass-panel:hover {
-    border-color: rgba(0, 200, 180, 0.35);
-    box-shadow: 0 16px 56px rgba(0, 140, 130, 0.12), inset 0 1px 0 rgba(255,255,255,0.7);
+    border-color: rgba(0, 200, 180, 0.30);
+    box-shadow: 0 18px 60px rgba(0, 140, 130, 0.10), inset 0 1px 0 rgba(255,255,255,0.7);
 }
 
 /* ===== Skip Link ===== */
@@ -220,9 +220,16 @@ main { width: min(100% - 48px, var(--max)); margin: 0 auto; position: relative; 
 }
 
 .hero h1 {
-    font-size: clamp(2.6rem, 5.5vw, 4.2rem); max-width: 720px;
+    font-size: clamp(3.2rem, 7vw, 5.4rem); max-width: 720px;
     background: linear-gradient(135deg, #004d47 0%, #006d6a 30%, #00838f 60%, #0097c4 100%);
     -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
+.hero-subtitle {
+    max-width: 670px; margin-top: 8px;
+    font-size: 1.28rem; font-weight: 600; line-height: 1.5;
+    color: var(--teal);
+    opacity: 0.85;
 }
 
 .hero-lead { max-width: 670px; margin-top: 22px; color: var(--text-soft); font-size: 1.08rem; }
@@ -421,14 +428,21 @@ main { width: min(100% - 48px, var(--max)); margin: 0 auto; position: relative; 
 /* ===== Contact ===== */
 .contact-section { padding-bottom: 80px; }
 .contact-grid { grid-template-columns: 0.78fr 1fr; }
-.contact-panel { display: grid; gap: 10px; align-content: start; padding: 24px; }
-.contact-panel a, .contact-panel span {
-    display: block; padding: 13px 0;
-    border-bottom: 1px solid rgba(0,180,160,0.08);
-    color: var(--text-soft); text-decoration: none;
-    transition: color 0.2s ease;
+.contact-panel { display: grid; gap: 14px; align-content: start; padding: 28px; }
+.contact-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0,180,160,0.06);
 }
-.contact-panel a:hover { color: var(--teal); }
+.contact-icon {
+    font-size: 1.2rem; flex: 0 0 auto;
+}
+.contact-row a, .contact-row span {
+    color: var(--text-soft); text-decoration: none;
+    transition: color 0.25s ease;
+    overflow-wrap: anywhere;
+}
+.contact-row a:hover { color: var(--teal); }
 
 .contact-form { display: grid; gap: 12px; padding: 24px; }
 .contact-form label { color: var(--text); font-weight: 700; font-size: 0.92rem; }
@@ -457,10 +471,32 @@ main { width: min(100% - 48px, var(--max)); margin: 0 auto; position: relative; 
 /* ===== Reveal ===== */
 .reveal { opacity: 1; transform: none; }
 .js .reveal {
-    opacity: 0; transform: translateY(22px);
-    transition: opacity 0.7s cubic-bezier(.25,.46,.45,.94), transform 0.7s cubic-bezier(.25,.46,.45,.94);
+    opacity: 0; transform: translateY(28px);
+    transition: opacity 0.8s cubic-bezier(.22,.61,.36,1), transform 0.8s cubic-bezier(.22,.61,.36,1);
 }
 .js .reveal.is-visible { opacity: 1; transform: translateY(0); }
+
+/* Staggered reveal for grid children */
+.js .signal-strip .signal-card:nth-child(1) { transition-delay: 0s; }
+.js .signal-strip .signal-card:nth-child(2) { transition-delay: 0.08s; }
+.js .signal-strip .signal-card:nth-child(3) { transition-delay: 0.16s; }
+.js .signal-strip .signal-card:nth-child(4) { transition-delay: 0.24s; }
+
+.js .about-grid .about-story { transition-delay: 0s; }
+.js .about-grid .focus-list { transition-delay: 0.12s; }
+
+.js .timeline .timeline-card:nth-child(2) { transition-delay: 0.12s; }
+.js .experience-grid .experience-card:nth-child(2) { transition-delay: 0.12s; }
+.js .skills-grid .skill-card:nth-child(2) { transition-delay: 0.06s; }
+.js .skills-grid .skill-card:nth-child(3) { transition-delay: 0.12s; }
+.js .skills-grid .skill-card:nth-child(4) { transition-delay: 0.18s; }
+.js .projects-grid .project-card:nth-child(2) { transition-delay: 0.1s; }
+.js .projects-grid .project-card:nth-child(3) { transition-delay: 0.2s; }
+.js .projects-grid .project-card:nth-child(4) { transition-delay: 0.3s; }
+.js .award-list .award-card:nth-child(2) { transition-delay: 0.06s; }
+.js .award-list .award-card:nth-child(3) { transition-delay: 0.12s; }
+.js .award-list .award-card:nth-child(4) { transition-delay: 0.18s; }
+.js .award-list .award-card:nth-child(5) { transition-delay: 0.24s; }
 
 :focus-visible { outline: 3px solid rgba(0,180,160,0.45); outline-offset: 3px; }
 
@@ -498,7 +534,7 @@ main { width: min(100% - 48px, var(--max)); margin: 0 auto; position: relative; 
 }
 @media (max-width: 560px) {
     main,.nav,.site-footer { width: min(100% - 24px,var(--max)); }
-    .hero h1 { font-size: 2.1rem; }
+    .hero h1 { font-size: 2.4rem; }
     .hero-actions { display: grid; }
     .hero-visual { min-height: 300px; }
     .portrait { right: 10px; width: 210px; }

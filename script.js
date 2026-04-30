@@ -1,18 +1,17 @@
 /* ================================================================
-   林韦婧个人主页 — 流体3D玻璃质感交互系统
+   林韦婧个人主页 — 流体3D玻璃质感交互系统 v2
+   优化：tilt缓动、视差平滑、交错reveal、粒子性能
    ================================================================ */
 
 (function () {
     "use strict";
 
-    /* ===== 1. Header Scroll State ===== */
+    /* ===== 1. Header ===== */
     const header = document.querySelector("[data-header]");
     const navToggle = document.querySelector("[data-nav-toggle]");
     const navLinks = document.querySelector("[data-nav-links]");
     const navItems = Array.from(document.querySelectorAll(".nav-links a"));
-    const sections = navItems
-        .map((l) => document.querySelector(l.getAttribute("href")))
-        .filter(Boolean);
+    const sections = navItems.map((l) => document.querySelector(l.getAttribute("href"))).filter(Boolean);
 
     const setHeaderState = () => {
         header.classList.toggle("is-scrolled", window.scrollY > 12);
@@ -25,12 +24,11 @@
         navToggle.setAttribute("aria-expanded", "false");
         navLinks.classList.remove("is-open");
     };
-    const openNav = () => {
-        navToggle.setAttribute("aria-expanded", "true");
-        navLinks.classList.add("is-open");
-    };
     navToggle.addEventListener("click", () => {
-        navToggle.getAttribute("aria-expanded") === "true" ? closeNav() : openNav();
+        navToggle.getAttribute("aria-expanded") === "true" ? closeNav() : (() => {
+            navToggle.setAttribute("aria-expanded", "true");
+            navLinks.classList.add("is-open");
+        })();
     });
     navItems.forEach((l) => l.addEventListener("click", closeNav));
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeNav(); });
@@ -38,7 +36,7 @@
         if (!navLinks.contains(e.target) && !navToggle.contains(e.target)) closeNav();
     });
 
-    /* ===== 3. Scroll Reveal (IntersectionObserver) ===== */
+    /* ===== 3. Scroll Reveal with Stagger ===== */
     if ("IntersectionObserver" in window) {
         const revealObs = new IntersectionObserver(
             (entries) => {
@@ -49,112 +47,144 @@
                     }
                 });
             },
-            { threshold: 0.10, rootMargin: "0px 0px -40px 0px" }
+            { threshold: 0.08, rootMargin: "0px 0px -30px 0px" }
         );
         document.querySelectorAll(".reveal").forEach((el) => revealObs.observe(el));
 
-        // Active nav highlight
         const navObs = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
                     if (!entry.isIntersecting) return;
                     navItems.forEach((l) => {
-                        l.classList.toggle(
-                            "is-active",
-                            l.getAttribute("href") === `#${entry.target.id}`
-                        );
+                        l.classList.toggle("is-active", l.getAttribute("href") === `#${entry.target.id}`);
                     });
                 });
             },
-            { threshold: 0.30, rootMargin: "-20% 0px -55% 0px" }
+            { threshold: 0.25, rootMargin: "-18% 0px -50% 0px" }
         );
         sections.forEach((s) => navObs.observe(s));
     } else {
         document.querySelectorAll(".reveal").forEach((el) => el.classList.add("is-visible"));
     }
 
-    /* ===== 4. Parallax Background (50% of scroll speed) ===== */
+    /* ===== 4. Smooth Parallax (lerped, 50% speed) ===== */
     const parallaxBg = document.querySelector("[data-parallax]");
-    let ticking = false;
+    let currentParallaxY = 0;
+    let targetParallaxY = 0;
 
-    function updateParallax() {
-        const scrollY = window.scrollY;
-        parallaxBg.style.transform = `translateY(${scrollY * 0.5}px)`;
-        ticking = false;
+    function animateParallax() {
+        // Smooth lerp toward target
+        currentParallaxY += (targetParallaxY - currentParallaxY) * 0.08;
+        parallaxBg.style.transform = `translateY(${currentParallaxY}px)`;
+        requestAnimationFrame(animateParallax);
     }
+    animateParallax();
 
     window.addEventListener("scroll", () => {
-        if (!ticking) {
-            requestAnimationFrame(updateParallax);
-            ticking = true;
-        }
+        targetParallaxY = window.scrollY * 0.5;
     }, { passive: true });
 
-    /* ===== 5. Mouse-Follow Tilt (3D Deformation) ===== */
+    /* ===== 5. Mouse-Follow Tilt — Smooth Lerped ===== */
     const tiltElements = document.querySelectorAll("[data-tilt]");
+    const tiltState = new WeakMap();
 
-    function handleTilt(e, el) {
-        const rect = el.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-        const rotateX = ((y - centerY) / centerY) * -6;   // max ±6deg
-        const rotateY = ((x - centerX) / centerX) * 6;
+    // Initialize state per element
+    tiltElements.forEach((el) => {
+        tiltState.set(el, {
+            currentRX: 0, currentRY: 0, currentScale: 1,
+            targetRX: 0, targetRY: 0, targetScale: 1,
+            mx: 50, my: 50, targetMx: 50, targetMy: 50,
+            active: false
+        });
+    });
 
-        el.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.01,1.01,1.01)`;
+    // Animation loop for smooth tilt
+    function animateTilt() {
+        tiltElements.forEach((el) => {
+            const s = tiltState.get(el);
+            if (!s) return;
 
-        // Mouse-follow light spot
-        const percentX = (x / rect.width) * 100;
-        const percentY = (y / rect.height) * 100;
-        el.style.setProperty("--mx", percentX + "%");
-        el.style.setProperty("--my", percentY + "%");
+            // Lerp toward targets
+            const lerpFactor = s.active ? 0.12 : 0.06;
+            s.currentRX += (s.targetRX - s.currentRX) * lerpFactor;
+            s.currentRY += (s.targetRY - s.currentRY) * lerpFactor;
+            s.currentScale += (s.targetScale - s.currentScale) * lerpFactor;
+            s.mx += (s.targetMx - s.mx) * 0.1;
+            s.my += (s.targetMy - s.my) * 0.1;
+
+            el.style.transform = `perspective(800px) rotateX(${s.currentRX}deg) rotateY(${s.currentRY}deg) scale3d(${s.currentScale},${s.currentScale},${s.currentScale})`;
+            el.style.setProperty("--mx", s.mx + "%");
+            el.style.setProperty("--my", s.my + "%");
+        });
+        requestAnimationFrame(animateTilt);
     }
+    animateTilt();
 
-    function resetTilt(el) {
-        el.style.transform = "perspective(800px) rotateX(0) rotateY(0) scale3d(1,1,1)";
-        el.style.transition = "transform 0.5s cubic-bezier(.25,.46,.45,.94)";
-    }
+    // Track which element mouse is over
+    let activeTiltEl = null;
 
-    // Use event delegation for performance
     document.addEventListener("mousemove", (e) => {
+        // Reset previous active
+        if (activeTiltEl) {
+            const rect = activeTiltEl.getBoundingClientRect();
+            const isNear = e.clientX >= rect.left - 30 && e.clientX <= rect.right + 30 &&
+                           e.clientY >= rect.top - 30 && e.clientY <= rect.bottom + 30;
+            if (!isNear) {
+                const s = tiltState.get(activeTiltEl);
+                if (s) {
+                    s.active = false;
+                    s.targetRX = 0; s.targetRY = 0; s.targetScale = 1;
+                    s.targetMx = 50; s.targetMy = 50;
+                }
+                activeTiltEl = null;
+            }
+        }
+
+        // Check all tilt elements
         tiltElements.forEach((el) => {
             const rect = el.getBoundingClientRect();
-            // Only process if mouse is near the element
-            if (
-                e.clientX >= rect.left - 40 &&
-                e.clientX <= rect.right + 40 &&
-                e.clientY >= rect.top - 40 &&
-                e.clientY <= rect.bottom + 40
-            ) {
-                el.style.transition = "transform 0.15s ease-out";
-                handleTilt(e, el);
+            const isNear = e.clientX >= rect.left - 30 && e.clientX <= rect.right + 30 &&
+                           e.clientY >= rect.top - 30 && e.clientY <= rect.bottom + 30;
+            const s = tiltState.get(el);
+            if (!s) return;
+
+            if (isNear) {
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                // Softer tilt: ±4deg instead of ±6
+                s.targetRX = ((y - centerY) / centerY) * -4;
+                s.targetRY = ((x - centerX) / centerX) * 4;
+                s.targetScale = 1.015;
+                s.targetMx = (x / rect.width) * 100;
+                s.targetMy = (y / rect.height) * 100;
+                s.active = true;
+                activeTiltEl = el;
             }
         });
     });
 
+    // Reset all on mouse leave window
     document.addEventListener("mouseleave", () => {
-        tiltElements.forEach(resetTilt);
+        tiltElements.forEach((el) => {
+            const s = tiltState.get(el);
+            if (s) {
+                s.active = false;
+                s.targetRX = 0; s.targetRY = 0; s.targetScale = 1;
+                s.targetMx = 50; s.targetMy = 50;
+            }
+        });
+        activeTiltEl = null;
     });
 
-    // Reset on scroll to avoid stuck transforms
-    let tiltResetTick = false;
-    window.addEventListener("scroll", () => {
-        if (!tiltResetTick) {
-            requestAnimationFrame(() => {
-                tiltElements.forEach(resetTilt);
-                tiltResetTick = false;
-            });
-            tiltResetTick = true;
-        }
-    }, { passive: true });
-
-    /* ===== 6. Particle System (Canvas) ===== */
+    /* ===== 6. Particle System — Optimized ===== */
     const canvas = document.getElementById("particles");
     if (canvas) {
         const ctx = canvas.getContext("2d");
         let particles = [];
-        const PARTICLE_COUNT = 60;
+        const PARTICLE_COUNT = 45; // reduced for smoothness
+        let animFrameId;
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -168,35 +198,43 @@
             reset() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 3 + 1;
-                this.speedX = (Math.random() - 0.5) * 0.3;
-                this.speedY = (Math.random() - 0.5) * 0.3;
-                this.opacity = Math.random() * 0.35 + 0.05;
-                this.hue = 160 + Math.random() * 40; // blue-green range
-                this.life = Math.random() * 300 + 200;
+                this.size = Math.random() * 2.5 + 0.8;
+                this.speedX = (Math.random() - 0.5) * 0.25;
+                this.speedY = (Math.random() - 0.5) * 0.25;
+                this.baseOpacity = Math.random() * 0.30 + 0.06;
+                this.hue = 160 + Math.random() * 40;
+                this.life = Math.random() * 400 + 250;
                 this.age = 0;
+                // Breathing phase offset
+                this.phase = Math.random() * Math.PI * 2;
             }
-            update() {
+            update(time) {
                 this.x += this.speedX;
                 this.y += this.speedY;
                 this.age++;
-                if (this.age > this.life || this.x < -10 || this.x > canvas.width + 10 ||
-                    this.y < -10 || this.y > canvas.height + 10) {
+                // Gentle breathing opacity
+                const breathe = Math.sin(time * 0.001 + this.phase) * 0.3 + 0.7;
+                this.currentOpacity = this.baseOpacity * breathe;
+                if (this.age > this.life || this.x < -20 || this.x > canvas.width + 20 ||
+                    this.y < -20 || this.y > canvas.height + 20) {
                     this.reset();
                 }
             }
             draw() {
-                const fade = 1 - this.age / this.life;
-                const alpha = this.opacity * fade;
+                const fade = Math.min(1, this.age / 40) * Math.min(1, (this.life - this.age) / 40);
+                const alpha = this.currentOpacity * fade;
+                if (alpha < 0.01) return;
+
+                // Core dot
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = `hsla(${this.hue}, 80%, 60%, ${alpha})`;
+                ctx.fillStyle = `hsla(${this.hue}, 75%, 55%, ${alpha})`;
                 ctx.fill();
 
-                // Glow
+                // Soft glow
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size * 3, 0, Math.PI * 2);
-                ctx.fillStyle = `hsla(${this.hue}, 80%, 60%, ${alpha * 0.15})`;
+                ctx.arc(this.x, this.y, this.size * 4, 0, Math.PI * 2);
+                ctx.fillStyle = `hsla(${this.hue}, 75%, 55%, ${alpha * 0.08})`;
                 ctx.fill();
             }
         }
@@ -205,22 +243,31 @@
             particles.push(new Particle());
         }
 
-        function animateParticles() {
+        function animateParticles(time) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             particles.forEach((p) => {
-                p.update();
+                p.update(time);
                 p.draw();
             });
-            requestAnimationFrame(animateParticles);
+            animFrameId = requestAnimationFrame(animateParticles);
         }
-        animateParticles();
+        animateParticles(0);
+
+        // Pause particles when tab is hidden
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden) {
+                cancelAnimationFrame(animFrameId);
+            } else {
+                animateParticles(performance.now());
+            }
+        });
     }
 
     /* ===== 7. Year ===== */
     const yearEl = document.querySelector("[data-year]");
     if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-    /* ===== 8. Contact Form (mailto) ===== */
+    /* ===== 8. Contact Form ===== */
     const form = document.getElementById("contact-form");
     if (form) {
         form.addEventListener("submit", (e) => {
@@ -234,4 +281,15 @@
             window.location.href = `mailto:1256381960@qq.com?subject=${subject}&body=${body}`;
         });
     }
+
+    /* ===== 9. Smooth scroll for anchor links ===== */
+    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", (e) => {
+            const target = document.querySelector(anchor.getAttribute("href"));
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+        });
+    });
 })();
