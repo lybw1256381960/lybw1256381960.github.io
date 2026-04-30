@@ -1,60 +1,917 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>我的个人网页</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>林韦婧 | 工业设计工程 · 服务设计与用户研究</title>
+    <meta name="description" content="林韦婧 — 广东工业大学工业设计工程研究生，专注服务设计与用户研究。非遗活化、可持续设计、交互教育产品。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg: #faf9f7;
+            --fg: #1a1a1a;
+            --muted: #6b6b6b;
+            --accent: #2d8659;
+            --accent-light: #e8f5e9;
+            --card: #ffffff;
+            --border: #e8e4df;
+            --shadow: rgba(0,0,0,0.06);
+            --gold: #b8860b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            font-family: "Microsoft YaHei", sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg);
+            color: var(--fg);
+            line-height: 1.7;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
         }
-        .header {
+
+        /* ========== Hero Section ========== */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(165deg, #f5f3ef 0%, #e8f0ec 40%, #fdfbf7 100%);
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 80%;
+            height: 150%;
+            background: radial-gradient(ellipse, rgba(45,134,89,0.06) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-content {
             text-align: center;
-            background-color: #24292e;
+            padding: 60px 24px;
+            max-width: 720px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-tag {
+            display: inline-block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--accent);
+            border: 1.5px solid var(--accent);
+            padding: 6px 20px;
+            border-radius: 30px;
+            margin-bottom: 32px;
+            opacity: 0;
+            animation: fadeUp 0.8s ease forwards 0.2s;
+        }
+
+        .hero h1 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: clamp(2.8rem, 7vw, 4.5rem);
+            font-weight: 700;
+            letter-spacing: 8px;
+            margin-bottom: 16px;
+            line-height: 1.2;
+            opacity: 0;
+            animation: fadeUp 0.8s ease forwards 0.4s;
+        }
+
+        .hero-subtitle {
+            font-size: 1.15rem;
+            color: var(--muted);
+            font-weight: 300;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+            opacity: 0;
+            animation: fadeUp 0.8s ease forwards 0.55s;
+        }
+
+        .hero-school {
+            font-size: 0.95rem;
+            color: var(--accent);
+            font-weight: 500;
+            margin-bottom: 40px;
+            opacity: 0;
+            animation: fadeUp 0.8s ease forwards 0.7s;
+        }
+
+        .hero-desc {
+            font-size: 1.05rem;
+            color: var(--muted);
+            max-width: 520px;
+            margin: 0 auto 48px;
+            line-height: 1.9;
+            opacity: 0;
+            animation: fadeUp 0.8s ease forwards 0.85s;
+        }
+
+        .hero-links {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            opacity: 0;
+            animation: fadeUp 0.8s ease forwards 1s;
+        }
+
+        .hero-links a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 28px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.92rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
             color: white;
-            padding: 20px;
-            border-radius: 10px;
         }
-        .content {
-            background-color: white;
-            padding: 20px;
-            margin-top: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        .btn-primary:hover { background-color: #236b47; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(45,134,89,0.25); }
+
+        .btn-outline {
+            border: 1.5px solid var(--border);
+            color: var(--fg);
+            background: transparent;
         }
-        .footer {
+        .btn-outline:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 36px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            color: var(--muted);
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            opacity: 0;
+            animation: fadeIn 1s ease forwards 1.5s;
+        }
+
+        .scroll-line {
+            width: 1px;
+            height: 40px;
+            background: linear-gradient(to bottom, var(--muted), transparent);
+            animation: scrollPulse 2s ease infinite;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn { to { opacity: 1; } }
+        @keyframes scrollPulse {
+            0%, 100% { opacity: 0.3; transform: scaleY(1); }
+            50% { opacity: 1; transform: scaleY(1.2); }
+        }
+
+        /* ========== Section Common ========== */
+        section {
+            padding: 100px 24px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: clamp(1.8rem, 4vw, 2.4rem);
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: 2px;
+        }
+
+        .section-desc {
+            color: var(--muted);
+            max-width: 600px;
+            margin-bottom: 56px;
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+
+        /* ========== About Section ========== */
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+            align-items: start;
+        }
+
+        .about-text p {
+            margin-bottom: 20px;
+            color: var(--fg);
+            font-size: 1rem;
+            line-height: 1.9;
+        }
+
+        .about-info {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 36px;
+            box-shadow: 0 4px 24px var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+        .info-item:last-child { border-bottom: none; }
+        .info-label { color: var(--muted); font-weight: 400; }
+        .info-value { font-weight: 500; text-align: right; }
+
+        .tags-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 28px;
+        }
+
+        .tag {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            background: var(--accent-light);
+            color: var(--accent);
+            border: 1px solid rgba(45,134,89,0.15);
+        }
+
+        /* ========== Research Section ========== */
+        .research-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .research-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 36px 28px;
+            border: 1px solid var(--border);
+            transition: all 0.35s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .research-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px var(--shadow);
+            border-color: var(--accent);
+        }
+        .research-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent);
+            opacity: 0;
+            transition: opacity 0.35s ease;
+        }
+        .research-card:hover::before { opacity: 1; }
+
+        .research-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: var(--accent-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+        }
+
+        .research-card h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .research-card p {
+            color: var(--muted);
+            font-size: 0.92rem;
+            line-height: 1.75;
+        }
+
+        /* ========== Projects Section ========== */
+        .projects-section {
+            background: linear-gradient(180deg, var(--bg) 0%, #f0ede8 100%);
+            padding: 100px 24px;
+            max-width: none;
+        }
+
+        .projects-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .project-card {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            background: var(--card);
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 48px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 24px var(--shadow);
+            transition: all 0.4s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        .project-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .project-card:hover {
+            box-shadow: 0 16px 56px rgba(0,0,0,0.1);
+        }
+
+        .project-visual {
+            padding: 48px 36px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            min-height: 380px;
+        }
+
+        .project-number {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 4rem;
+            font-weight: 700;
+            color: rgba(45,134,89,0.08);
+            position: absolute;
+            top: 20px;
+            left: 28px;
+            line-height: 1;
+        }
+
+        .project-badge {
+            display: inline-block;
+            padding: 5px 14px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .badge-ux { background: #e8f5e9; color: #2d8659; }
+        .badge-product { background: #fff8e1; color: #b8860b; }
+        .badge-system { background: #e3f2fd; color: #1565c0; }
+
+        .project-icon-display {
+            font-size: 3.5rem;
+            margin-bottom: 16px;
+        }
+
+        .project-keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .keyword {
+            font-size: 0.75rem;
+            padding: 4px 12px;
+            border-radius: 14px;
+            background: var(--bg);
+            color: var(--muted);
+            border: 1px solid var(--border);
+        }
+
+        .project-info {
+            padding: 48px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .project-type {
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+
+        .project-info h3 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .project-subtitle {
+            font-size: 0.95rem;
+            color: var(--muted);
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .project-desc {
+            color: var(--fg);
+            font-size: 0.93rem;
+            line-height: 1.85;
+            margin-bottom: 28px;
+        }
+
+        .project-highlights {
+            list-style: none;
+            margin-bottom: 28px;
+        }
+
+        .project-highlights li {
+            position: relative;
+            padding-left: 22px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .project-highlights li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .project-award {
+            display: inline-block;
+            padding: 8px 18px;
+            background: linear-gradient(135deg, #fff8e1, #ffecb3);
+            border-radius: 8px;
+            font-size: 0.82rem;
+            color: #8a6d00;
+            font-weight: 500;
+            border: 1px solid rgba(184,134,11,0.2);
+        }
+
+        /* Project color variants */
+        .project-card:nth-child(1) .project-visual { background: linear-gradient(145deg, #e8f5e9, #c8e6c9); }
+        .project-card:nth-child(2) .project-visual { background: linear-gradient(145deg, #fff8e1, #ffe08233); }
+        .project-card:nth-child(3) .project-visual { background: linear-gradient(145deg, #fff3e0, #ffe0b233); }
+        .project-card:nth-child(4) .project-visual { background: linear-gradient(145deg, #eceff1, #cfd8dc55); }
+
+        /* ========== Skills Section ========== */
+        .skills-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        .skill-group {
+            background: var(--card);
+            border-radius: 14px;
+            padding: 28px 24px;
+            border: 1px solid var(--border);
+        }
+
+        .skill-group h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 18px;
+            color: var(--fg);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .skill-tag {
+            padding: 5px 14px;
+            border-radius: 6px;
+            font-size: 0.83rem;
+            background: var(--bg);
+            color: var(--muted);
+            border: 1px solid var(--border);
+            transition: all 0.25s ease;
+        }
+        .skill-tag:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* ========== Footer ========== */
+        footer {
             text-align: center;
-            margin-top: 20px;
-            color: #666;
+            padding: 60px 24px;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 0.88rem;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        footer a:hover { text-decoration: underline; }
+
+        /* ========== Responsive ========== */
+        @media (max-width: 768px) {
+            .about-grid { grid-template-columns: 1fr; gap: 32px; }
+            .project-card { grid-template-columns: 1fr; }
+            .project-visual { min-height: 260px; padding: 36px 24px; }
+            .project-info { padding: 32px 24px; }
+            section { padding: 64px 20px; }
+            .hero-content { padding: 40px 20px; }
+        }
+
+        /* ========== Smooth Scroll ========== */
+        html { scroll-behavior: smooth; }
+
+        /* ========== Nav (floating) ========== */
+        .nav-float {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 100;
+            display: flex;
+            gap: 8px;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 8px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 20px var(--shadow);
+            opacity: 0;
+            animation: fadeIn 0.6s ease forwards 1.8s;
+        }
+
+        .nav-float a {
+            text-decoration: none;
+            color: var(--muted);
+            font-size: 0.78rem;
+            font-weight: 500;
+            padding: 6px 14px;
+            border-radius: 6px;
+            transition: all 0.25s ease;
+            white-space: nowrap;
+        }
+        .nav-float a:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        @media (max-width: 600px) {
+            .nav-float { display: none; }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>欢迎来到我的个人网页！</h1>
-        <p>这是我用GitHub Pages创建的第一个网页</p>
+
+    <!-- Floating Nav -->
+    <nav class="nav-float">
+        <a href="#about">关于</a>
+        <a href="#research">研究方向</a>
+        <a href="#projects">作品集</a>
+        <a href="#skills">技能</a>
+    </nav>
+
+    <!-- Hero -->
+    <header class="hero">
+        <div class="hero-content">
+            <div class="hero-tag">Industrial Design Engineering</div>
+            <h1>林韦婧</h1>
+            <p class="hero-subtitle">服务设计 · 用户研究 · 产品创新</p>
+            <p class="hero-school">广东工业大学 · 工业设计工程 · 2025级 研究生</p>
+            <p class="hero-desc">专注于通过系统性设计思维解决复杂问题，探索非遗文化数字化传承、可持续材料应用与交互式教育产品的融合创新。</p>
+            <div class="hero-links">
+                <a href="#projects" class="btn-primary">查看作品集</a>
+                <a href="mailto:1256381960@qq.com" class="btn-outline">联系我 →</a>
+            </div>
+        </div>
+        <div class="scroll-hint">
+            <span>SCROLL</span>
+            <div class="scroll-line"></div>
+        </div>
+    </header>
+
+    <!-- About -->
+    <section id="about">
+        <div class="section-label">About Me</div>
+        <h2 class="section-title">关于我</h2>
+        <p class="section-desc">以设计为桥梁，连接传统与未来。</p>
+
+        <div class="about-grid">
+            <div class="about-text">
+                <p>我是林韦婧，目前就读于<strong>广东工业大学工业设计工程专业（2025级研究生）</strong>，主要研究方向为<strong>服务设计与用户研究</strong>。</p>
+                <p>我的设计实践涵盖<strong>非遗文化活化、可持续产品设计、智能交互系统</strong>等多个领域。我相信好的设计不仅是美学表达，更是解决问题的系统性方法——从用户洞察到服务蓝图，从产品形态到生态闭环，每一步都值得被认真对待。</p>
+                <p>在学术研究中，我热衷于将传统文化元素与现代数字技术结合，探索设计在文化传承与社会创新中的独特价值。同时，我也关注可持续发展议题，致力于通过设计减少环境负担。</p>
+            </div>
+            <div class="about-info">
+                <div class="info-item">
+                    <span class="info-label">姓名</span>
+                    <span class="info-value">林韦婧</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">学校</span>
+                    <span class="info-value">广东工业大学</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">专业</span>
+                    <span class="info-value">工业设计工程（硕士）</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">年级</span>
+                    <span class="info-value">2025级 / 研一</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">研究方向</span>
+                    <span class="info-value">服务设计与用户研究</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">邮箱</span>
+                    <span class="info-value"><a href="mailto:1256381960@qq.com" style="color:var(--accent);text-decoration:none;">1256381960@qq.com</a></span>
+                </div>
+                <div class="tags-row">
+                    <span class="tag">🎨 服务设计</span>
+                    <span class="tag">🔍 用户研究</span>
+                    <span class="tag">🏮 非遗活化</span>
+                    <span class="tag">♻️ 可持续设计</span>
+                    <span class="tag">📱 交互设计</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Research -->
+    <section id="research">
+        <div class="section-label">Research Focus</div>
+        <h2 class="section-title">研究方向</h2>
+        <p class="section-desc">我的研究围绕三个核心领域展开，关注人与系统、文化与技术、产品与环境的深层关系。</p>
+
+        <div class="research-cards">
+            <div class="research-card">
+                <div class="research-icon">🔍</div>
+                <h3>服务设计与用户体验</h3>
+                <p>聚焦多利益相关者协同的服务系统设计，通过用户旅程地图、服务蓝图等工具构建端到端的体验优化方案。关注触点设计与用户情感曲线的深度关联。</p>
+            </div>
+            <div class="research-card">
+                <div class="research-icon">🏮</div>
+                <h3>非遗文化数字化传承</h3>
+                <p>探索非物质文化遗产的当代转译路径，利用AI、数字孪生等技术手段搭建文化传播平台，让传统技艺在数字时代获得新的生命力与传播语境。</p>
+            </div>
+            <div class="research-card">
+                <div class="research-icon">♻️</div>
+                <h3>可持续产品与循环设计</h3>
+                <p>关注产品全生命周期中的环境影响，研究可降解材料的应用场景与堆肥工艺转化，推动"从摇篮到摇篮"的设计理念在消费级产品中的落地。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects -->
+    <div class="projects-section" id="projects">
+        <div class="projects-inner">
+            <div class="section-label">Portfolio</div>
+            <h2 class="section-title">代表作品</h2>
+            <p class="section-desc">四个项目，四种视角——从服务系统到实体产品，从文化传承到技术创新。</p>
+
+            <!-- Project 1 -->
+            <article class="project-card">
+                <div class="project-visual">
+                    <span class="project-number">01</span>
+                    <span class="project-badge badge-ux">UX / Service Design</span>
+                    <div class="project-icon-display">🎋</div>
+                    <div class="project-keywords">
+                        <span class="keyword">非遗竹艺</span>
+                        <span class="keyword">AI赋能</span>
+                        <span class="keyword">云平台</span>
+                        <span class="keyword">服务系统</span>
+                    </div>
+                </div>
+                <div class="project-info">
+                    <div class="project-type">Project 01</div>
+                    <h3>竹构美好</h3>
+                    <p class="project-subtitle">竹艺数智服务系统 —— 非遗活化云平台新生态</p>
+                    <p class="project-desc">针对非遗竹艺面临现代化不足、缺乏竞争力、传承危机等问题，构建了以全球竹艺数字平台为核心的综合服务体系。整合AI纹样推荐、3D采集上传、云博物馆、培训认证等功能模块，打通设计师/院校、消费者、政府、企业等多方价值链路。</p>
+                    <ul class="project-highlights">
+                        <li>深入福建宁德茶岚口、井岗山等地实地调研，覆盖45+乡村</li>
+                        <li>收集非遗竹艺产品数据8356份，纹样设计稿4281张，挖掘纹样1895种</li>
+                        <li>构建完整服务蓝图：专家端 + 用户端双角色体系</li>
+                        <li>数据量约500G，持续更新中</li>
+                    </ul>
+                    <span class="project-award">🏆 2024年教育部大广赛命题大赛二等奖 | iCCA国际文化创意铜奖 | NCDA国家级奖项</span>
+                </div>
+            </article>
+
+            <!-- Project 2 -->
+            <article class="project-card">
+                <div class="project-visual">
+                    <span class="project-number">02</span>
+                    <span class="project-badge badge-product">Product Design</span>
+                    <div class="project-icon-display">🌱</div>
+                    <div class="project-keywords">
+                        <span class="keyword">可持续包装</span>
+                        <span class="keyword">可堆肥</span>
+                        <span class="keyword">花盆</span>
+                        <span class="keyword">循环设计</span>
+                    </div>
+                </div>
+                <div class="project-info">
+                    <div class="project-type">Project 02</div>
+                    <h3>第二次生命</h3>
+                    <p class="project-subtitle">基于可堆肥理念的花瓶外包装设计</p>
+                    <p class="project-desc">针对传统花瓶外包装存在不可降解、环保性差、使用场景单一等问题，提出一套完整的可持续解决方案。将茶叶渣、蛋壳等可堆肥材料经好氧发酵转化为花盆容器，实现"包装→花盆→土壤"的全生命周期闭环。</p>
+                    <ul class="project-highlights">
+                        <li>完整分析可持续产品生命周期与材料功能转化流程</li>
+                        <li>深入研究好氧堆肥原理及过程特点（温度/时间/微生物）</li>
+                        <li>三版迭代：初版结构优化 → 材质替换 → 最终一体化方案</li>
+                        <li>CMF定义：自然色系 + 粗糙肌理 + 圆润造型语言</li>
+                    </ul>
+                    <span class="project-award">🏆 2024年9月"泰隆杯"文创艺术组省级银奖 | DOA东方设计奖全国二等奖</span>
+                </div>
+            </article>
+
+            <!-- Project 3 -->
+            <article class="project-card">
+                <div class="project-visual">
+                    <span class="project-number">03</span>
+                    <span class="project-badge badge-product">Product Design</span>
+                    <div class="project-icon-display">☯️</div>
+                    <div class="project-keywords">
+                        <span class="keyword">周易文化</span>
+                        <span class="keyword">NFC交互</span>
+                        <span class="keyword">儿童益智</span>
+                        <span class="keyword">教具</span>
+                    </div>
+                </div>
+                <div class="project-info">
+                    <div class="project-type">Project 03</div>
+                    <h3>变卦 —— 儿童益智棋</h3>
+                    <p class="project-subtitle">亲子互动教具 × 周易趣味 × NFC六爻数字化赋能</p>
+                    <p class="project-desc">针对当前儿童玩具市场同质化严重、受众单一、缺乏亲子互动性与文化深度的问题，将周易六十四卦的文化内核与现代NFC数字技术结合，打造一款兼具文化启蒙与逻辑训练功能的亲子互动棋盘游戏。</p>
+                    <ul class="project-highlights">
+                        <li>竞品分析：中国亲子教具市场潜力巨大但同质化严重</li>
+                        <li>双用户画像：家长决策层（32-45岁）+ 儿童使用者层（7-14岁）</li>
+                        <li>HMW分析 → 价值主张画布（八卦棋盘/卦象卡/爻签/卦象解）</li>
+                        <li>差异化定位："传统文化 + 亲子互动科技"新范式</li>
+                    </ul>
+                    <span class="project-award">🏆 2024年8月中国教育装备展省级银奖 | 2024年DOA东方设计奖全国三等奖</span>
+                </div>
+            </article>
+
+            <!-- Project 4 -->
+            <article class="project-card">
+                <div class="project-visual">
+                    <span class="project-number">04</span>
+                    <span class="project-badge badge-system">Product Design</span>
+                    <div class="project-icon-display">🚁</div>
+                    <div class="project-keywords">
+                        <span class="keyword">植保无人机</span>
+                        <span class="keyword">智能交互</span>
+                        <span class="keyword">炮射</span>
+                        <span class="keyword">多场景</span>
+                    </div>
+                </div>
+                <div class="project-info">
+                    <div class="project-type">Project 04</div>
+                    <h3>穿隧蜂 —— 炮射无人机</h3>
+                    <p class="project-subtitle">智能交互式多场景植保无人机应用研究</p>
+                    <p class="project-desc">面向现代农业植保需求，探索无人机在复杂地形下的高效作业模式。通过炮射发射方式解决传统无人机起降场地受限问题，结合智能交互系统实现多场景适配，为智慧农业提供新型空中作业平台方案。</p>
+                    <ul class="project-highlights">
+                        <li>深入分析植保无人机市场现状与技术瓶颈</li>
+                        <li>创新性引入炮射发射机制，突破地形限制</li>
+                        <li>多场景适配：山地/温室/大田等不同农业环境</li>
+                        <li>智能交互系统设计，降低操作门槛</li>
+                    </ul>
+                    <span class="project-award">🏆 2024年10月广东工业大学校级奖项（2024·挑战杯）</span>
+                </div>
+            </article>
+        </div>
     </div>
-    
-    <div class="content">
-        <h2>关于我</h2>
-        <p>大家好，我是林韦婧，一名工业设计工程学生。</p>
-        
-        <h2>我的兴趣</h2>
-        <ul>
-            <li>人工智能</li>
-            <li>编程开发</li>
-            <li>阅读写作</li>
-        </ul>
-        
-        <h2>联系方式</h2>
-        <p>邮箱：1256381960@qq.com</p>
-    </div>
-    
-    <div class="footer">
-        <p>&copy; 2026 我的个人网页 | Powered by GitHub Pages</p>
-    </div>
+
+    <!-- Skills -->
+    <section id="skills">
+        <div class="section-label">Skills & Tools</div>
+        <h2 class="section-title">技能工具</h2>
+        <p class="section-desc">从用户洞察到视觉呈现，从系统规划到原型验证。</p>
+
+        <div class="skills-layout">
+            <div class="skill-group">
+                <h4>📐 设计与研究</h4>
+                <div class="skill-tags">
+                    <span class="skill-tag">服务设计</span>
+                    <span class="skill-tag">用户研究</span>
+                    <span class="skill-tag">用户体验</span>
+                    <span class="skill-tag">产品设计</span>
+                    <span class="skill-tag">CMF设计</span>
+                    <span class="skill-tag">可用性测试</span>
+                </div>
+            </div>
+            <div class="skill-group">
+                <h4>🎨 视觉与交互</h4>
+                <div class="skill-tags">
+                    <span class="skill-tag">Figma</span>
+                    <span class="skill-tag">Adobe PS/AI</span>
+                    <span class="skill-tag">Rhino</span>
+                    <span class="skill-tag">KeyShot渲染</span>
+                    <span class="skill-tag">UI/UX设计</span>
+                    <span class="skill-tag">信息可视化</span>
+                </div>
+            </div>
+            <div class="skill-group">
+                <h4>🛠 方法论与工具</h4>
+                <div class="skill-tags">
+                    <span class="skill-tag">用户画像</span>
+                    <span class="skill-tag">旅程地图</span>
+                    <span class="skill-tag">服务蓝图</span>
+                    <span class="skill-tag">SWOT/PEST</span>
+                    <span class="skill-tag">HMW分析</span>
+                    <span class="skill-tag">价值主张画布</span>
+                </div>
+            </div>
+            <div class="skill-group">
+                <h4>💡 技术与前沿</h4>
+                <div class="skill-tags">
+                    <span class="skill-tag">AI辅助设计</span>
+                    <span class="skill-tag">NFC交互</span>
+                    <span class="skill-tag">3D扫描</span>
+                    <span class="skill-tag">数字孪生</span>
+                    <span class="skill-tag">可持续材料</span>
+                    <span class="skill-tag">堆肥工艺</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2026 林韦婧 · 广东工业大学工业设计工程</p>
+        <p style="margin-top: 8px;">
+            <a href="mailto:1256381960@qq.com">1256381960@qq.com</a>
+            · 用心设计，以人为本
+        </p>
+    </footer>
+
+    <!-- Scroll Reveal Script -->
+    <script>
+        // Intersection Observer for project cards
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.classList.add('visible');
+                    }, index * 120);
+                }
+            });
+        }, { threshold: 0.15 });
+
+        document.querySelectorAll('.project-card').forEach(card => observer.observe(card));
+
+        // Smooth scroll for nav links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    </script>
 </body>
 </html>
