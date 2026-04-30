@@ -1,60 +1,365 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>我的个人网页</title>
-    <style>
-        body {
-            font-family: "Microsoft YaHei", sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .header {
-            text-align: center;
-            background-color: #24292e;
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-        }
-        .content {
-            background-color: white;
-            padding: 20px;
-            margin-top: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            color: #666;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="林韦婧，广东工业大学工业设计工程25级学生，研究方向为服务设计与用户研究。个人主页展示教育背景、用户研究能力、服务设计项目与工业设计作品集。">
+    <meta name="keywords" content="林韦婧, 广东工业大学, 工业设计工程, 服务设计, 用户研究, 产品设计, 作品集, UIUX, 工业设计">
+    <meta name="author" content="林韦婧">
+    <meta name="theme-color" content="#0a8f8b">
+    <meta property="og:title" content="林韦婧 | 服务设计与用户研究作品集">
+    <meta property="og:description" content="广东工业大学工业设计工程25级学生，关注服务设计、用户研究、数字服务生态与可持续产品创新。">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="assets/portfolio-cover.jpg">
+    <meta property="og:locale" content="zh_CN">
+    <title>林韦婧 | 服务设计与用户研究作品集</title>
+    <link rel="icon" href="assets/lwj-avatar.jpg" type="image/jpeg">
+    <link rel="stylesheet" href="styles.css">
+    <script>document.documentElement.classList.add("js");</script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "林韦婧",
+        "email": "mailto:1256381960@qq.com",
+        "telephone": "+86 17759943027",
+        "jobTitle": "工业设计工程学生",
+        "affiliation": {
+            "@type": "CollegeOrUniversity",
+            "name": "广东工业大学"
+        },
+        "alumniOf": {
+            "@type": "CollegeOrUniversity",
+            "name": "福建理工大学"
+        },
+        "knowsAbout": ["服务设计", "用户研究", "产品设计", "UI/UX设计", "可持续设计", "工业设计工程"],
+        "url": "https://lybw1256381960.github.io/"
+    }
+    </script>
 </head>
 <body>
-    <div class="header">
-        <h1>欢迎来到我的个人网页！</h1>
-        <p>这是我用GitHub Pages创建的第一个网页</p>
-    </div>
-    
-    <div class="content">
-        <h2>关于我</h2>
-        <p>大家好，我是林韦婧，一名工业设计工程学生。</p>
-        
-        <h2>我的兴趣</h2>
-        <ul>
-            <li>人工智能</li>
-            <li>编程开发</li>
-            <li>阅读写作</li>
-        </ul>
-        
-        <h2>联系方式</h2>
-        <p>邮箱：1256381960@qq.com</p>
-    </div>
-    
-    <div class="footer">
-        <p>&copy; 2026 我的个人网页 | Powered by GitHub Pages</p>
-    </div>
+    <a class="skip-link" href="#main">跳转到主要内容</a>
+
+    <header class="site-header" data-header>
+        <nav class="nav" aria-label="主导航">
+            <a class="brand" href="#top" aria-label="返回顶部">
+                <span class="brand-mark">LWJ</span>
+                <span class="brand-text">林韦婧</span>
+            </a>
+            <button class="nav-toggle" type="button" aria-label="打开导航菜单" aria-expanded="false" data-nav-toggle>
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-links" data-nav-links>
+                <li><a href="#about">关于</a></li>
+                <li><a href="#education">教育</a></li>
+                <li><a href="#experience">实践</a></li>
+                <li><a href="#skills">能力</a></li>
+                <li><a href="#projects">作品</a></li>
+                <li><a href="#awards">荣誉</a></li>
+                <li><a href="#contact">联系</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main id="main">
+        <section class="hero" id="top" aria-labelledby="hero-title">
+            <div class="hero-copy reveal">
+                <p class="eyebrow">Service Design · User Research · Industrial Design Engineering</p>
+                <h1 id="hero-title">以人为本，连接研究洞察与服务创新</h1>
+                <p class="hero-lead">
+                    我是林韦婧，广东工业大学工业设计工程25级学生，主要研究服务设计与用户研究。基于产品设计背景，我关注真实情境中的用户需求、系统触点与可持续体验，用研究、原型和跨学科协作推动设计落地。
+                </p>
+                <div class="hero-actions" aria-label="快捷操作">
+                    <a class="btn btn-primary" href="#projects">查看作品</a>
+                    <a class="btn btn-secondary" href="assets/lin-weijing-portfolio.pdf" target="_blank" rel="noopener noreferrer">打开完整作品集</a>
+                </div>
+            </div>
+            <div class="hero-visual reveal" aria-label="林韦婧作品集与头像">
+                <img class="hero-cover" src="assets/portfolio-cover.jpg" alt="林韦婧工业设计作品集封面" width="1600" height="576">
+                <figure class="portrait">
+                    <img src="assets/lwj-avatar.jpg" alt="林韦婧个人头像" width="900" height="900">
+                    <figcaption>
+                        <span>林韦婧</span>
+                        <strong>服务设计与用户研究方向</strong>
+                    </figcaption>
+                </figure>
+            </div>
+        </section>
+
+        <section class="signal-strip" aria-label="核心亮点">
+            <div class="signal-item reveal">
+                <span class="signal-number">25级</span>
+                <span class="signal-label">广东工业大学工业设计工程</span>
+            </div>
+            <div class="signal-item reveal">
+                <span class="signal-number">1/58</span>
+                <span class="signal-label">本科综合排名</span>
+            </div>
+            <div class="signal-item reveal">
+                <span class="signal-number">4</span>
+                <span class="signal-label">核心作品集项目</span>
+            </div>
+            <div class="signal-item reveal">
+                <span class="signal-number">RCCSE</span>
+                <span class="signal-label">核心期刊收录研究成果</span>
+            </div>
+        </section>
+
+        <section class="section" id="about" aria-labelledby="about-title">
+            <div class="section-heading reveal">
+                <p class="section-kicker">About Me</p>
+                <h2 id="about-title">关于我</h2>
+                <p>从产品设计进入服务设计与用户研究，我更关注“为什么设计”以及“设计如何进入真实系统”。</p>
+            </div>
+            <div class="about-grid">
+                <article class="about-story reveal">
+                    <h3>研究型设计学习者</h3>
+                    <p>
+                        本科阶段我围绕产品设计、交互体验、CMF、设计心理学、设计行销与管理等方向持续训练，并在多个项目中担任负责人或核心成员。现在我将研究重心放在服务设计与用户研究，期待把用户洞察、服务蓝图、触点规划与原型验证结合起来，形成更可持续的系统方案。
+                    </p>
+                    <p>
+                        我的项目覆盖非遗数字化服务、可持续包装、亲子益智产品与多场景无人机系统。相比单一造型表达，我更希望用调研、分析和叙事把产品、服务、场景和社会价值串联起来。
+                    </p>
+                </article>
+                <div class="focus-list reveal" aria-label="关注方向">
+                    <span>用户访谈与需求洞察</span>
+                    <span>服务蓝图与用户旅程</span>
+                    <span>系统设计与触点规划</span>
+                    <span>可持续产品与CMF</span>
+                    <span>数字服务生态</span>
+                    <span>跨学科协作落地</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="education" aria-labelledby="education-title">
+            <div class="section-heading reveal">
+                <p class="section-kicker">Education</p>
+                <h2 id="education-title">教育背景</h2>
+                <p>以工业设计工程为当下研究主线，以产品设计训练作为方法基础。</p>
+            </div>
+            <div class="timeline">
+                <article class="timeline-card reveal">
+                    <span class="period">2025.09 - 至今</span>
+                    <h3>广东工业大学</h3>
+                    <p class="role">工业设计工程 · 25级</p>
+                    <p>研究方向聚焦服务设计与用户研究，关注复杂场景中的用户需求、服务流程、交互触点与创新价值转化。</p>
+                </article>
+                <article class="timeline-card reveal">
+                    <span class="period">2021.09 - 2025.06</span>
+                    <h3>福建理工大学</h3>
+                    <p class="role">产品设计 · 本科</p>
+                    <p>本科绩点 3.65/5.0，综合排名 1/58，专业排名 8/58。主修产品表现技法、产品CMF设计应用、产品设计进阶、人因工程学基础、造型材料与成型工艺、设计心理学、设计行销与管理、产品创意与策划等课程。</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="section" id="experience" aria-labelledby="experience-title">
+            <div class="section-heading reveal">
+                <p class="section-kicker">Experience</p>
+                <h2 id="experience-title">实践经历</h2>
+                <p>在企业设计、组织协作和项目管理中积累真实问题处理经验。</p>
+            </div>
+            <div class="experience-grid">
+                <article class="experience-card reveal">
+                    <div class="card-meta">
+                        <span>2023.07 - 2023.08</span>
+                        <strong>产品外观设计</strong>
+                    </div>
+                    <h3>厦门新锐创意电子科技有限公司</h3>
+                    <ul>
+                        <li>参与公司新品前期调研与竞品分析，梳理市场风格、使用场景与产品差异点。</li>
+                        <li>为公司提供 50 余套产品外观设计方案，支持方案比选与后续深化。</li>
+                    </ul>
+                </article>
+                <article class="experience-card reveal">
+                    <div class="card-meta">
+                        <span>2023.06 - 2024.09</span>
+                        <strong>执行主席</strong>
+                    </div>
+                    <h3>院学生会</h3>
+                    <ul>
+                        <li>统筹管理学生会 5 个大部门、18 个小部门，协调 215 位干部干事完成多项院校级活动。</li>
+                        <li>组织推进校级运动会、院级学代会、院十佳歌手、毕业晚会等项目，负责策划、布置、执行与现场协同。</li>
+                    </ul>
+                </article>
+            </div>
+        </section>
+
+        <section class="section" id="skills" aria-labelledby="skills-title">
+            <div class="section-heading reveal">
+                <p class="section-kicker">Capabilities</p>
+                <h2 id="skills-title">技能专长</h2>
+                <p>能力结构围绕“研究、策略、原型、表达、验证”展开。</p>
+            </div>
+            <div class="skills-grid">
+                <article class="skill-card reveal">
+                    <h3>用户研究与服务设计</h3>
+                    <p>用户访谈、问卷调研、竞品分析、需求分层、用户画像、用户旅程、服务蓝图、系统设计、触点规划。</p>
+                </article>
+                <article class="skill-card reveal">
+                    <h3>产品与交互表达</h3>
+                    <p>产品概念推导、CMF分析、信息架构、流程图、低/高保真原型、交互说明、产品展示叙事。</p>
+                </article>
+                <article class="skill-card reveal">
+                    <h3>软件工具</h3>
+                    <div class="tool-list" aria-label="软件熟练度">
+                        <span>Creo 72%</span>
+                        <span>KeyShot 68%</span>
+                        <span>Photoshop 65%</span>
+                        <span>SPSS 62%</span>
+                        <span>Rhino 60%</span>
+                    </div>
+                </article>
+                <article class="skill-card reveal">
+                    <h3>数字服务与协作</h3>
+                    <p>AI/IoT数字服务生态探索、NFC交互、数据分析基础、项目汇报、团队协作、研究成果转译。</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="section" id="projects" aria-labelledby="projects-title">
+            <div class="section-heading reveal">
+                <p class="section-kicker">Portfolio</p>
+                <h2 id="projects-title">项目作品</h2>
+                <p>作品从用户研究、系统策略、原型表达和成果转化四个维度呈现。</p>
+            </div>
+            <div class="projects-grid">
+                <article class="project-card reveal">
+                    <img src="assets/project-bamboo-service.jpg" alt="竹构美好竹艺数智服务系统高保真界面展示" width="1400" height="504" loading="lazy">
+                    <div class="project-body">
+                        <div class="project-tags">
+                            <span>服务设计</span>
+                            <span>UI/UX</span>
+                            <span>非遗数字化</span>
+                        </div>
+                        <h3>竹构美好：竹艺数智服务系统</h3>
+                        <p>围绕传统竹艺的数字化传承与服务创新，构建资料库、云端博物馆、AI竹艺编辑器和3D智能扫描等触点，探索非遗活化的云端新生态。</p>
+                        <dl>
+                            <div><dt>角色</dt><dd>负责人</dd></div>
+                            <div><dt>成果</dt><dd>2024 年校大学生创新创业大赛两项银奖；相关研究被《家具与室内装饰》（RCCSE核心）收录。</dd></div>
+                        </dl>
+                    </div>
+                </article>
+                <article class="project-card reveal">
+                    <img src="assets/project-second-life.jpg" alt="第二次生命可持续花瓶外包装产品展示" width="1400" height="504" loading="lazy">
+                    <div class="project-body">
+                        <div class="project-tags">
+                            <span>产品设计</span>
+                            <span>可持续包装</span>
+                            <span>CMF</span>
+                        </div>
+                        <h3>第二次生命：可持续花瓶外包装</h3>
+                        <p>基于环保与再利用理念，将花瓶外包装转化为可种植容器，通过材料、结构与使用流程设计，让包装在产品使用后继续参与生活场景。</p>
+                        <dl>
+                            <div><dt>方法</dt><dd>竞品分析、CMF意向、结构推敲、产品尺寸与使用流程设计。</dd></div>
+                            <div><dt>成果</dt><dd>2024“华夏奖”文化艺术设计大赛国铜奖；ODA东方设计奖国家级二等奖、省级三等奖。</dd></div>
+                        </dl>
+                    </div>
+                </article>
+                <article class="project-card reveal">
+                    <img src="assets/project-maigua-nfc.jpg" alt="麦卦亲子共弈NFC六爻益智玩具产品展示" width="1400" height="504" loading="lazy">
+                    <div class="project-body">
+                        <div class="project-tags">
+                            <span>产品设计</span>
+                            <span>亲子体验</span>
+                            <span>NFC交互</span>
+                        </div>
+                        <h3>麦卦：亲子共弈 NFC 六爻益智玩具</h3>
+                        <p>以周易文化为灵感，结合亲子共学、益智游戏与NFC交互，将传统文化内容转化为可操作、可陪伴、可反馈的儿童学习体验。</p>
+                        <dl>
+                            <div><dt>重点</dt><dd>亲子互动路径、棋具结构、CMF方案、游戏流程与信息反馈设计。</dd></div>
+                            <div><dt>成果</dt><dd>2023 年中国包装创意设计大赛国家级三等奖。</dd></div>
+                        </dl>
+                    </div>
+                </article>
+                <article class="project-card reveal">
+                    <img src="assets/project-drone-service.jpg" alt="穿膛蜂炮射无人机多场景应用研究技术路线图" width="1400" height="504" loading="lazy">
+                    <div class="project-body">
+                        <div class="project-tags">
+                            <span>系统设计</span>
+                            <span>服务场景</span>
+                            <span>无人机应用</span>
+                        </div>
+                        <h3>穿膛蜂：炮射无人机应用研究</h3>
+                        <p>面向军事、民用与消防等多场景，提出可折叠后劲炮射无人机与集群反射平台方案，梳理快速部署、侦查、回收与协同作业流程。</p>
+                        <dl>
+                            <div><dt>角色</dt><dd>主演讲人 / 核心成员</dd></div>
+                            <div><dt>成果</dt><dd>2024 年省大学生创新大赛金奖；中国国际大学生创新大赛铜奖。</dd></div>
+                        </dl>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="section" id="awards" aria-labelledby="awards-title">
+            <div class="section-heading reveal">
+                <p class="section-kicker">Honors</p>
+                <h2 id="awards-title">荣誉与学术成果</h2>
+                <p>竞赛、研究与校园实践共同构成持续成长的证据链。</p>
+            </div>
+            <div class="award-list">
+                <article class="award-card reveal">
+                    <span>2024.09</span>
+                    <h3>ODA 东方设计奖</h3>
+                    <p>国家级二等奖、省级三等奖。</p>
+                </article>
+                <article class="award-card reveal">
+                    <span>2024.06</span>
+                    <h3>“华夏奖”文化艺术设计大赛</h3>
+                    <p>国铜奖。</p>
+                </article>
+                <article class="award-card reveal">
+                    <span>2024.03</span>
+                    <h3>《家具与室内装饰》收录</h3>
+                    <p>《竹集成材表面色彩感性意象量化研究与分析》研究成果被 RCCSE 核心期刊收录。</p>
+                </article>
+                <article class="award-card reveal">
+                    <span>2023.09</span>
+                    <h3>中国包装创意设计大赛</h3>
+                    <p>国家级三等奖。</p>
+                </article>
+                <article class="award-card reveal">
+                    <span>2021 - 2024</span>
+                    <h3>综合二等奖学金</h3>
+                    <p>连续三年获得校综合二等奖学金；连续四年获得校大学生文化艺术节优秀个人奖。</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="section contact-section" id="contact" aria-labelledby="contact-title">
+            <div class="section-heading reveal">
+                <p class="section-kicker">Contact</p>
+                <h2 id="contact-title">联系方式</h2>
+                <p>欢迎交流服务设计、用户研究、工业设计工程学习与项目合作。</p>
+            </div>
+            <div class="contact-grid">
+                <div class="contact-panel reveal">
+                    <a href="mailto:1256381960@qq.com">1256381960@qq.com</a>
+                    <a href="tel:+8617759943027">17759943027</a>
+                    <span>微信：ly1256381960</span>
+                    <a href="https://github.com/lybw1256381960" target="_blank" rel="noopener noreferrer">github.com/lybw1256381960</a>
+                    <a href="assets/lin-weijing-portfolio.pdf" target="_blank" rel="noopener noreferrer">查看 PDF 作品集</a>
+                </div>
+                <form class="contact-form reveal" id="contact-form">
+                    <label for="name">姓名</label>
+                    <input id="name" name="name" type="text" autocomplete="name" placeholder="请输入你的姓名" required>
+                    <label for="email">邮箱</label>
+                    <input id="email" name="email" type="email" autocomplete="email" placeholder="请输入你的邮箱" required>
+                    <label for="message">留言</label>
+                    <textarea id="message" name="message" placeholder="请输入你想交流的内容" required></textarea>
+                    <button class="btn btn-primary" type="submit">发送邮件</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <p>© <span data-year>2026</span> 林韦婧 · Service Design & User Research</p>
+    </footer>
+
+    <script src="script.js" defer></script>
 </body>
 </html>
