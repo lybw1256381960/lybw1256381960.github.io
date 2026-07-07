@@ -28,17 +28,15 @@
     };
 
     const canvas = document.getElementById('liquid-ether-canvas');
-    if (!canvas) return;
+    if (!canvas) { console.error('[LiquidEther] canvas not found'); return; }
 
-    // Load Three.js from CDN
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
-    script.onload = initLiquidEther;
-    script.onerror = () => console.error('Failed to load Three.js');
-    document.head.appendChild(script);
+    // THREE.js already loaded synchronously from <head>
+    const THREE = window.THREE;
+    if (!THREE) { console.error('[LiquidEther] THREE not loaded'); return; }
+
+    initLiquidEther();
 
     function initLiquidEther() {
-        const THREE = window.THREE;
 
         /* ═══════════════════════════════════════════════════════════
            SHADER SOURCES (from React LiquidEther)
