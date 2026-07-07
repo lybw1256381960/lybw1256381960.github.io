@@ -638,27 +638,31 @@
                     wrapS: THREE.ClampToEdgeWrapping, wrapT: THREE.ClampToEdgeWrapping
                 };
                 const rt = new THREE.WebGLRenderTarget(w, h, opts);
-                // Seed with initial velocity to avoid black screen
-                if (seedVelocity) {
+                // Seed with initial swirl velocity to avoid black screen
+                if (seedVelocity && Common.renderer) {
                     const data = new Float32Array(w * h * 4);
                     for (let i = 0; i < w * h; i++) {
-                        // Circular swirl patterns
                         const u = (i % w) / w * 2 - 1;
-                        const v = (Math.floor(i / w)) / h * 2 - 1;
-                        const angle = Math.atan2(v, u);
-                        const dist = Math.sqrt(u*u + v*v);
-                        // Tangential velocity = swirl
+                        const vv = (Math.floor(i / w)) / h * 2 - 1;
+                        const angle = Math.atan2(vv, u);
+                        const dist = Math.sqrt(u*u + vv*vv);
                         data[i*4]   = -Math.sin(angle) * Math.max(0, 1 - dist) * 1.5;
                         data[i*4+1] =  Math.cos(angle) * Math.max(0, 1 - dist) * 1.5;
                         data[i*4+2] = 0;
                         data[i*4+3] = 1;
                     }
-                    rt.texture.image = { width: w, height: h, data: data };
-                    // Force update
-                    const gl = Common.renderer.getContext();
-                    gl.bindTexture(gl.TEXTURE_2D, rt.texture);
-                    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, type, data);
-                    gl.bindTexture(gl.TEXTURE_2D, null);
+                    const seedTex = new THREE.DataTexture(data, w, h, THREE.RGBAFormat, type);
+                    seedTex.needsUpdate = true;
+                    // Render seed texture to FBO
+                    const seedScene = new THREE.Scene();
+                    const seedCam = new THREE.Camera();
+                    const seedMesh = new THREE.Mesh(new THREE.PlaneGeometry(2,2),
+                        new THREE.MeshBasicMaterial({ map: seedTex }));
+                    seedScene.add(seedMesh);
+                    Common.renderer.setRenderTarget(rt);
+                    Common.renderer.render(seedScene, seedCam);
+                    Common.renderer.setRenderTarget(null);
+                    seedTex.dispose();
                 }
                 return rt;
             }
