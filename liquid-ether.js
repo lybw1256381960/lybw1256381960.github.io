@@ -12,15 +12,15 @@
         cursorSize: 100,
         isViscous: false,
         viscous: 30,
-        iterationsViscous: 32,
-        iterationsPoisson: 32,
-        dt: 0.014,
+        iterationsViscous: 12,
+        iterationsPoisson: 20,
+        dt: 0.016,
         BFECC: true,
-        resolution: 0.5,
+        resolution: 0.25,
         isBounce: false,
         colors: ['#06d6f0', '#00f5c4', '#e0fafc'],
         autoDemo: true,
-        autoSpeed: 1.2,
+        autoSpeed: 0.7,
         autoIntensity: 4.5,
         takeoverDuration: 0.25,
         autoResumeDelay: 1000,
@@ -95,25 +95,31 @@
             uniform bool isBFECC;
             uniform vec2 fboSize;
             uniform vec2 px;
+            uniform float time;
             varying vec2 uv;
             void main(){
                 vec2 ratio = max(fboSize.x, fboSize.y) / fboSize;
+                // Subtle continuous background drift so it's never dead
+                vec2 bgDrift = vec2(
+                    sin(uv.y * 3.14159 + time * 0.6) * 0.003,
+                    cos(uv.x * 3.14159 + time * 0.4) * 0.003
+                );
+                vec2 vel = texture2D(velocity, uv).xy + bgDrift;
                 if(isBFECC == false){
-                    vec2 vel = texture2D(velocity, uv).xy;
                     vec2 uv2 = uv - vel * dt * ratio;
-                    vec2 newVel = texture2D(velocity, uv2).xy;
+                    vec2 newVel = texture2D(velocity, uv2).xy + bgDrift;
                     gl_FragColor = vec4(newVel, 0.0, 0.0);
                 } else {
                     vec2 spot_new = uv;
-                    vec2 vel_old = texture2D(velocity, uv).xy;
+                    vec2 vel_old = texture2D(velocity, uv).xy + bgDrift;
                     vec2 spot_old = spot_new - vel_old * dt * ratio;
-                    vec2 vel_new1 = texture2D(velocity, spot_old).xy;
+                    vec2 vel_new1 = texture2D(velocity, spot_old).xy + bgDrift;
                     vec2 spot_new2 = spot_old + vel_new1 * dt * ratio;
                     vec2 error = spot_new2 - spot_new;
                     vec2 spot_new3 = spot_new - error / 2.0;
-                    vec2 vel_2 = texture2D(velocity, spot_new3).xy;
+                    vec2 vel_2 = texture2D(velocity, spot_new3).xy + bgDrift;
                     vec2 spot_old2 = spot_new3 - vel_2 * dt * ratio;
-                    vec2 newVel2 = texture2D(velocity, spot_old2).xy;
+                    vec2 newVel2 = texture2D(velocity, spot_old2).xy + bgDrift;
                     gl_FragColor = vec4(newVel2, 0.0, 0.0);
                 }
             }
@@ -128,8 +134,11 @@
             void main(){
                 vec2 vel = texture2D(velocity, uv).xy;
                 float lenv = clamp(length(vel), 0.0, 1.0);
-                vec3 c = texture2D(palette, vec2(lenv, 0.5)).rgb;
-                vec3 outRGB = mix(bgColor.rgb, c, lenv);
+                // Boost low-velocity areas so screen is never dark
+                float lenvBoost = lenv + (1.0 - lenv) * 0.08;
+                lenvBoost = clamp(lenvBoost, 0.0, 1.0);
+                vec3 c = texture2D(palette, vec2(lenvBoost, 0.5)).rgb;
+                vec3 outRGB = mix(bgColor.rgb, c, clamp(lenv * 2.5, 0.0, 1.0));
                 float outA = mix(bgColor.a, 1.0, lenv);
                 gl_FragColor = vec4(outRGB, outA);
             }
@@ -438,7 +447,8 @@
                             fboSize: { value: simProps.fboSize },
                             velocity: { value: simProps.src.texture },
                             dt: { value: simProps.dt },
-                            isBFECC: { value: true }
+                            isBFECC: { value: true },
+                            time: { value: 0.0 }
                         }
                     },
                     output: simProps.dst
@@ -460,7 +470,8 @@
                 this.line = new THREE.LineSegments(geo, mat);
                 this.scene.add(this.line);
             }
-            update({ dt, isBounce, BFECC }) {
+            update({ dt, isBounce, BFECC, time }) {
+                this.uniforms.time.value = time || 0;
                 this.uniforms.dt.value = dt;
                 this.line.visible = isBounce;
                 this.uniforms.isBFECC.value = BFECC;
@@ -646,8 +657,8 @@
                         const vv = (Math.floor(i / w)) / h * 2 - 1;
                         const angle = Math.atan2(vv, u);
                         const dist = Math.sqrt(u*u + vv*vv);
-                        data[i*4]   = -Math.sin(angle) * Math.max(0, 1 - dist) * 1.5;
-                        data[i*4+1] =  Math.cos(angle) * Math.max(0, 1 - dist) * 1.5;
+                        data[i*4]   = -Math.sin(angle) * Math.max(0, 1 - dist) * 2.5;
+                        data[i*4+1] =  Math.cos(angle) * Math.max(0, 1 - dist) * 2.5;
                         data[i*4+2] = 0;
                         data[i*4+3] = 1;
                     }
@@ -712,7 +723,7 @@
             }
             update() {
                 this.boundarySpace.copy(this.options.isBounce ? new THREE.Vector2(0,0) : this.cellScale);
-                this.advection.update({ dt: this.options.dt, isBounce: this.options.isBounce, BFECC: this.options.BFECC });
+                this.advection.update({ dt: this.options.dt, isBounce: this.options.isBounce, BFECC: this.options.BFECC, time: Common.time });
                 this.externalForce.update({
                     cursor_size: this.options.cursor_size,
                     mouse_force: this.options.mouse_force,
@@ -760,7 +771,7 @@
                             velocity: { value: this.simulation.fbos.vel_0.texture },
                             boundarySpace: { value: new THREE.Vector2() },
                             palette: { value: paletteTex },
-                            bgColor: { value: new THREE.Vector4(0.04, 0.12, 0.18, 0.0) }
+                            bgColor: { value: new THREE.Vector4(0.01, 0.05, 0.08, 0.0) }
                         }
                     })
                 );
