@@ -20,15 +20,13 @@
 <body>
     <a class="skip-link" href="#main">跳转到主要内容</a>
 
-    <!-- 视差弥散背景层 -->
+    <!-- ColorBends 流体渐变背景层 -->
     <div class="parallax-bg" data-parallax>
+        <!-- WebGL ColorBends Shader Canvas -->
+        <canvas id="colorbends-canvas"></canvas>
+        <!-- CSS 辅助弥散光斑（轻微，不遮挡主shader） -->
         <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
         <div class="orb orb-4"></div>
-        <div class="orb orb-5"></div>
-        <div class="orb orb-6"></div>
-        <canvas class="particles" id="particles"></canvas>
     </div>
 
     <!-- 流体网格装饰层 -->

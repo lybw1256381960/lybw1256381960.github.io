@@ -1,295 +1,386 @@
 /* ================================================================
-   林韦婧个人主页 — 流体3D玻璃质感交互系统 v2
-   优化：tilt缓动、视差平滑、交错reveal、粒子性能
+   林韦婧个人主页 — ColorBends WebGL + 交互系统 v3
    ================================================================ */
 
 (function () {
     "use strict";
 
-    /* ===== 1. Header ===== */
-    const header = document.querySelector("[data-header]");
-    const navToggle = document.querySelector("[data-nav-toggle]");
-    const navLinks = document.querySelector("[data-nav-links]");
-    const navItems = Array.from(document.querySelectorAll(".nav-links a"));
-    const sections = navItems.map((l) => document.querySelector(l.getAttribute("href"))).filter(Boolean);
+    /* ═══════════════════════════════════════════════════════════
+       PART 1: ColorBends WebGL Shader Background
+       参数映射自 React ColorBends 组件
+       colors=["#06d492","#f37eef","#19c5ff"] rotation=85
+       speed=0.3, autoRotate=0.5, scale=1.8, frequency=2
+       warpStrength=1, mouseInfluence=1.2, parallax=0.7
+       noise=0.1, iterations=2, intensity=1.2, bandWidth=6
+    ═══════════════════════════════════════════════════════════ */
 
-    const setHeaderState = () => {
-        header.classList.toggle("is-scrolled", window.scrollY > 12);
-    };
+    const cbCanvas = document.getElementById("colorbends-canvas");
+    if (cbCanvas) {
+        const gl = cbCanvas.getContext("webgl") || cbCanvas.getContext("experimental-webgl");
+        if (gl) {
+            const VERT = `
+                attribute vec2 a_pos;
+                void main() { gl_Position = vec4(a_pos, 0.0, 1.0); }`;
+
+            const FRAG = `
+                precision highp float;
+                uniform float u_time;
+                uniform vec2  u_resolution;
+                uniform vec2  u_mouse;
+                uniform float u_rotation;
+                uniform float u_speed;
+                uniform float u_autoRotate;
+                uniform float u_scale;
+                uniform float u_frequency;
+                uniform float u_warpStrength;
+                uniform float u_mouseInfluence;
+                uniform float u_parallax;
+                uniform float u_noise;
+                uniform int   u_iterations;
+                uniform float u_intensity;
+                uniform float u_bandWidth;
+                uniform vec3  u_color0;
+                uniform vec3  u_color1;
+                uniform vec3  u_color2;
+
+                float hash21(vec2 p) {
+                    return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453);
+                }
+
+                float valueNoise(vec2 p) {
+                    vec2 i = floor(p); vec2 f = fract(p);
+                    vec2 u = f*f*(3.0-2.0*f);
+                    return mix(mix(hash21(i), hash21(i+vec2(1,0)), u.x),
+                               mix(hash21(i+vec2(0,1)), hash21(i+vec2(1,1)), u.x), u.y);
+                }
+
+                float fbm(vec2 p, int oct) {
+                    float v=0.0, a=0.5, fr=1.0, norm=0.0;
+                    for(int i=0;i<6;i++){
+                        if(i>=oct) break;
+                        v += a * valueNoise(p * fr);
+                        norm += a; a *= 0.5; fr *= 2.0;
+                    }
+                    return v / norm;
+                }
+
+                float warpedNoise(vec2 p, float t) {
+                    float q = fbm(p, u_iterations);
+                    float r = fbm(p + vec2(5.2+t*0.1, 1.3+t*0.07), u_iterations);
+                    vec2 off = vec2(
+                        fbm(p + q*u_warpStrength + vec2(1.7, 9.2), u_iterations),
+                        fbm(p + r*u_warpStrength + vec2(8.3, 2.8), u_iterations)
+                    ) * u_warpStrength;
+                    return fbm(p + off, u_iterations);
+                }
+
+                vec2 rotateUV(vec2 uv, float ang) {
+                    float rad = radians(ang);
+                    float s=sin(rad), c=cos(rad);
+                    return vec2(c*uv.x-s*uv.y, s*uv.x+c*uv.y);
+                }
+
+                float band(float t, float w) {
+                    float fw = fwidth(t) * w;
+                    return smoothstep(-fw, fw, sin(t * 6.2832));
+                }
+
+                void main() {
+                    vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution)
+                              / min(u_resolution.x, u_resolution.y);
+                    float t  = u_time * u_speed;
+                    float rot = u_rotation + u_autoRotate * t * 10.0;
+                    vec2 ruv = rotateUV(uv * u_scale, rot);
+
+                    // Mouse distortion
+                    vec2 m = u_mouse * 2.0 - 1.0;
+                    m.x *= u_resolution.x / u_resolution.y;
+                    float mDist = length(uv - m);
+                    float mStr  = u_mouseInfluence * smoothstep(1.2, 0.0, mDist);
+
+                    // Warped noise field
+                    vec2 nc = ruv * u_frequency + vec2(t*0.08, t*0.05);
+                    nc += mStr * (uv - m) * 0.5;
+                    float n = warpedNoise(nc, t);
+                    n = mix(0.5, n, u_intensity);
+
+                    // Grain
+                    n += valueNoise(ruv * 40.0 + t) * u_noise * 0.04;
+
+                    // Three-color band mixing
+                    float bt = n * u_bandWidth;
+                    float c1 = pow(sin(bt*1.0)*0.5+0.5, 0.8) * (0.6+0.4*band(n, 3.0));
+                    float c2 = pow(sin(bt*1.0+2.094)*0.5+0.5, 0.8) * (0.6+0.4*band(n+0.33, 3.0));
+                    float c3 = pow(sin(bt*1.0+4.189)*0.5+0.5, 0.8) * (0.6+0.4*band(n+0.66, 3.0));
+
+                    vec3 col = u_color0*c1 + u_color1*c2 + u_color2*c3;
+
+                    // Vignette
+                    float vig = 1.0 - smoothstep(0.5, 1.4, length(uv));
+                    col *= mix(0.80, 1.0, vig);
+
+                    // Mouse glow
+                    col += mStr * 0.07 * (u_color0 + u_color2) * 0.5;
+
+                    gl_FragColor = vec4(col, 1.0);
+                }`;
+
+            function compileShader(type, src) {
+                const s = gl.createShader(type);
+                gl.shaderSource(s, src);
+                gl.compileShader(s);
+                if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+                    console.error("Shader error:", gl.getShaderInfoLog(s));
+                    return null;
+                }
+                return s;
+            }
+            const vs = compileShader(gl.VERTEX_SHADER, VERT);
+            const fs = compileShader(gl.FRAGMENT_SHADER, FRAG);
+            if (!vs || !fs) { /* fallback handled below */ }
+
+            if (vs && fs) {
+                const prog = gl.createProgram();
+                gl.attachShader(prog, vs);
+                gl.attachShader(prog, fs);
+                gl.linkProgram(prog);
+                gl.useProgram(prog);
+
+                const buf = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+                gl.bufferData(gl.ARRAY_BUFFER,
+                    new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+                const posLoc = gl.getAttribLocation(prog, "a_pos");
+                gl.enableVertexAttribArray(posLoc);
+                gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+
+                const U = {
+                    time: gl.getUniformLocation(prog,"u_time"),
+                    res:  gl.getUniformLocation(prog,"u_resolution"),
+                    mouse:gl.getUniformLocation(prog,"u_mouse"),
+                    rot:  gl.getUniformLocation(prog,"u_rotation"),
+                    speed:gl.getUniformLocation(prog,"u_speed"),
+                    autoR:gl.getUniformLocation(prog,"u_autoRotate"),
+                    scale:gl.getUniformLocation(prog,"u_scale"),
+                    freq: gl.getUniformLocation(prog,"u_frequency"),
+                    warp: gl.getUniformLocation(prog,"u_warpStrength"),
+                    mInfl:gl.getUniformLocation(prog,"u_mouseInfluence"),
+                    para: gl.getUniformLocation(prog,"u_parallax"),
+                    noise:gl.getUniformLocation(prog,"u_noise"),
+                    iter: gl.getUniformLocation(prog,"u_iterations"),
+                    ints: gl.getUniformLocation(prog,"u_intensity"),
+                    bndW: gl.getUniformLocation(prog,"u_bandWidth"),
+                    c0:   gl.getUniformLocation(prog,"u_color0"),
+                    c1:   gl.getUniformLocation(prog,"u_color1"),
+                    c2:   gl.getUniformLocation(prog,"u_color2"),
+                };
+
+                const hexToRGB = h => [
+                    parseInt(h.slice(1,3),16)/255,
+                    parseInt(h.slice(3,5),16)/255,
+                    parseInt(h.slice(5,7),16)/255
+                ];
+                const C0 = hexToRGB("#06d492");
+                const C1 = hexToRGB("#f37eef");
+                const C2 = hexToRGB("#19c5ff");
+
+                let mX=0.5, mY=0.5, tMX=0.5, tMY=0.5;
+                document.addEventListener("mousemove", e => {
+                    tMX = e.clientX / cbCanvas.width;
+                    tMY = 1.0 - e.clientY / cbCanvas.height;
+                });
+
+                function resizeCanvas() {
+                    cbCanvas.width  = window.innerWidth;
+                    cbCanvas.height = window.innerHeight;
+                    gl.viewport(0, 0, cbCanvas.width, cbCanvas.height);
+                }
+                resizeCanvas();
+                window.addEventListener("resize", resizeCanvas);
+
+                let startMs = performance.now();
+                let cbAnimId;
+                function renderCB(elapsed) {
+                    mX += (tMX - mX) * 0.07;
+                    mY += (tMY - mY) * 0.07;
+
+                    gl.uniform1f(U.time,   elapsed);
+                    gl.uniform2f(U.res,   cbCanvas.width, cbCanvas.height);
+                    gl.uniform2f(U.mouse, mX, mY);
+                    gl.uniform1f(U.rot,   85);
+                    gl.uniform1f(U.speed,  0.3);
+                    gl.uniform1f(U.autoR,  0.5);
+                    gl.uniform1f(U.scale,  1.8);
+                    gl.uniform1f(U.freq,   2.0);
+                    gl.uniform1f(U.warp,   1.0);
+                    gl.uniform1f(U.mInfl,  1.2);
+                    gl.uniform1f(U.para,    0.7);
+                    gl.uniform1f(U.noise,  0.1);
+                    gl.uniform1i(U.iter,   2);
+                    gl.uniform1f(U.ints,   1.2);
+                    gl.uniform1f(U.bndW,   6.0);
+                    gl.uniform3fv(U.c0, C0);
+                    gl.uniform3fv(U.c1, C1);
+                    gl.uniform3fv(U.c2, C2);
+                    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+                    cbAnimId = requestAnimationFrame(ts => renderCB((ts-startMs)/1000));
+                }
+                renderCB(0);
+
+                document.addEventListener("visibilitychange", () => {
+                    if (document.hidden) { cancelAnimationFrame(cbAnimId); }
+                    else { startMs = performance.now() - performance.now() * 0.001; renderCB(0); }
+                });
+            }
+        }
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       PART 2: UI Interactions (原有功能保留)
+    ═══════════════════════════════════════════════════════════ */
+
+    /* 1. Header */
+    const header     = document.querySelector("[data-header]");
+    const navToggle  = document.querySelector("[data-nav-toggle]");
+    const navLinks   = document.querySelector("[data-nav-links]");
+    const navItems   = Array.from(document.querySelectorAll(".nav-links a"));
+    const sections   = navItems.map(l => document.querySelector(l.getAttribute("href"))).filter(Boolean);
+
+    const setHeaderState = () => header.classList.toggle("is-scrolled", window.scrollY > 12);
     setHeaderState();
     window.addEventListener("scroll", setHeaderState, { passive: true });
 
-    /* ===== 2. Mobile Nav ===== */
+    /* 2. Mobile Nav */
     const closeNav = () => {
         navToggle.setAttribute("aria-expanded", "false");
         navLinks.classList.remove("is-open");
     };
     navToggle.addEventListener("click", () => {
-        navToggle.getAttribute("aria-expanded") === "true" ? closeNav() : (() => {
-            navToggle.setAttribute("aria-expanded", "true");
-            navLinks.classList.add("is-open");
-        })();
+        navToggle.getAttribute("aria-expanded") === "true" ? closeNav()
+            : (navToggle.setAttribute("aria-expanded","true"), navLinks.classList.add("is-open"));
     });
-    navItems.forEach((l) => l.addEventListener("click", closeNav));
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeNav(); });
-    document.addEventListener("click", (e) => {
+    navItems.forEach(l => l.addEventListener("click", closeNav));
+    document.addEventListener("keydown", e => { if (e.key === "Escape") closeNav(); });
+    document.addEventListener("click", e => {
         if (!navLinks.contains(e.target) && !navToggle.contains(e.target)) closeNav();
     });
 
-    /* ===== 3. Scroll Reveal with Stagger ===== */
+    /* 3. Scroll Reveal (staggered) */
     if ("IntersectionObserver" in window) {
-        const revealObs = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add("is-visible");
-                        revealObs.unobserve(entry.target);
-                    }
-                });
-            },
-            { threshold: 0.08, rootMargin: "0px 0px -30px 0px" }
-        );
-        document.querySelectorAll(".reveal").forEach((el) => revealObs.observe(el));
+        const obs = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add("is-visible");
+                    obs.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.08, rootMargin: "0px 0px -30px 0px" });
+        document.querySelectorAll(".reveal").forEach(el => obs.observe(el));
 
-        const navObs = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    if (!entry.isIntersecting) return;
-                    navItems.forEach((l) => {
-                        l.classList.toggle("is-active", l.getAttribute("href") === `#${entry.target.id}`);
-                    });
+        const navObs = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+                navItems.forEach(l => {
+                    l.classList.toggle("is-active",
+                        l.getAttribute("href") === `#${entry.target.id}`);
                 });
-            },
-            { threshold: 0.25, rootMargin: "-18% 0px -50% 0px" }
-        );
-        sections.forEach((s) => navObs.observe(s));
+            });
+        }, { threshold: 0.25, rootMargin: "-18% 0px -50% 0px" });
+        sections.forEach(s => navObs.observe(s));
     } else {
-        document.querySelectorAll(".reveal").forEach((el) => el.classList.add("is-visible"));
+        document.querySelectorAll(".reveal").forEach(el => el.classList.add("is-visible"));
     }
 
-    /* ===== 4. Smooth Parallax (lerped, 50% speed) ===== */
+    /* 4. Smooth Parallax */
     const parallaxBg = document.querySelector("[data-parallax]");
-    let currentParallaxY = 0;
-    let targetParallaxY = 0;
-
+    let curPY = 0, tgtPY = 0;
     function animateParallax() {
-        // Smooth lerp toward target
-        currentParallaxY += (targetParallaxY - currentParallaxY) * 0.08;
-        parallaxBg.style.transform = `translateY(${currentParallaxY}px)`;
+        curPY += (tgtPY - curPY) * 0.08;
+        parallaxBg.style.transform = `translateY(${curPY}px)`;
         requestAnimationFrame(animateParallax);
     }
     animateParallax();
+    window.addEventListener("scroll", () => { tgtPY = window.scrollY * 0.5; }, { passive: true });
 
-    window.addEventListener("scroll", () => {
-        targetParallaxY = window.scrollY * 0.5;
-    }, { passive: true });
-
-    /* ===== 5. Mouse-Follow Tilt — Smooth Lerped ===== */
-    const tiltElements = document.querySelectorAll("[data-tilt]");
-    const tiltState = new WeakMap();
-
-    // Initialize state per element
-    tiltElements.forEach((el) => {
+    /* 5. Mouse Tilt — lerped */
+    const tiltEls = document.querySelectorAll("[data-tilt]");
+    const tiltState = new Map();
+    tiltEls.forEach(el => {
         tiltState.set(el, {
-            currentRX: 0, currentRY: 0, currentScale: 1,
-            targetRX: 0, targetRY: 0, targetScale: 1,
-            mx: 50, my: 50, targetMx: 50, targetMy: 50,
-            active: false
+            cRX:0, cRY:0, cS:1, tRX:0, tRY:0, tS:1,
+            mx:50, my:50, tMx:50, tMy:50, active:false
         });
     });
-
-    // Animation loop for smooth tilt
     function animateTilt() {
-        tiltElements.forEach((el) => {
+        tiltEls.forEach(el => {
             const s = tiltState.get(el);
             if (!s) return;
-
-            // Lerp toward targets
-            const lerpFactor = s.active ? 0.12 : 0.06;
-            s.currentRX += (s.targetRX - s.currentRX) * lerpFactor;
-            s.currentRY += (s.targetRY - s.currentRY) * lerpFactor;
-            s.currentScale += (s.targetScale - s.currentScale) * lerpFactor;
-            s.mx += (s.targetMx - s.mx) * 0.1;
-            s.my += (s.targetMy - s.my) * 0.1;
-
-            el.style.transform = `perspective(800px) rotateX(${s.currentRX}deg) rotateY(${s.currentRY}deg) scale3d(${s.currentScale},${s.currentScale},${s.currentScale})`;
-            el.style.setProperty("--mx", s.mx + "%");
-            el.style.setProperty("--my", s.my + "%");
+            const lf = s.active ? 0.12 : 0.06;
+            s.cRX += (s.tRX-s.cRX)*lf; s.cRY += (s.tRY-s.cRY)*lf;
+            s.cS  += (s.tS -s.cS )*lf;
+            s.mx  += (s.tMx-s.mx)*0.1; s.my  += (s.tMy-s.my)*0.1;
+            el.style.transform = `perspective(800px) rotateX(${s.cRX}deg) rotateY(${s.cRY}deg) scale3d(${s.cS},${s.cS},${s.cS})`;
+            el.style.setProperty("--mx", s.mx+"%");
+            el.style.setProperty("--my", s.my+"%");
         });
         requestAnimationFrame(animateTilt);
     }
     animateTilt();
 
-    // Track which element mouse is over
-    let activeTiltEl = null;
-
-    document.addEventListener("mousemove", (e) => {
-        // Reset previous active
-        if (activeTiltEl) {
-            const rect = activeTiltEl.getBoundingClientRect();
-            const isNear = e.clientX >= rect.left - 30 && e.clientX <= rect.right + 30 &&
-                           e.clientY >= rect.top - 30 && e.clientY <= rect.bottom + 30;
-            if (!isNear) {
-                const s = tiltState.get(activeTiltEl);
-                if (s) {
-                    s.active = false;
-                    s.targetRX = 0; s.targetRY = 0; s.targetScale = 1;
-                    s.targetMx = 50; s.targetMy = 50;
-                }
-                activeTiltEl = null;
+    let activeTilt = null;
+    document.addEventListener("mousemove", e => {
+        if (activeTilt) {
+            const r = activeTilt.getBoundingClientRect();
+            if (!(e.clientX>=r.left-30 && e.clientX<=r.right+30 &&
+                  e.clientY>=r.top-30  && e.clientY<=r.bottom+30)) {
+                const s = tiltState.get(activeTilt);
+                if (s) { s.active=false; s.tRX=0; s.tRY=0; s.tS=1; s.tMx=50; s.tMy=50; }
+                activeTilt = null;
             }
         }
-
-        // Check all tilt elements
-        tiltElements.forEach((el) => {
-            const rect = el.getBoundingClientRect();
-            const isNear = e.clientX >= rect.left - 30 && e.clientX <= rect.right + 30 &&
-                           e.clientY >= rect.top - 30 && e.clientY <= rect.bottom + 30;
+        tiltEls.forEach(el => {
+            const r = el.getBoundingClientRect();
+            if (!(e.clientX>=r.left-30 && e.clientX<=r.right+30 &&
+                  e.clientY>=r.top-30  && e.clientY<=r.bottom+30)) return;
             const s = tiltState.get(el);
             if (!s) return;
-
-            if (isNear) {
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                // Softer tilt: ±4deg instead of ±6
-                s.targetRX = ((y - centerY) / centerY) * -4;
-                s.targetRY = ((x - centerX) / centerX) * 4;
-                s.targetScale = 1.015;
-                s.targetMx = (x / rect.width) * 100;
-                s.targetMy = (y / rect.height) * 100;
-                s.active = true;
-                activeTiltEl = el;
-            }
+            const x=e.clientX-r.left, y=e.clientY-r.top;
+            const cx=r.width/2, cy=r.height/2;
+            s.tRX = ((y-cy)/cy)*-4; s.tRY = ((x-cx)/cx)*4; s.tS = 1.015;
+            s.tMx = (x/r.width)*100; s.tMy = (y/r.height)*100;
+            s.active = true; activeTilt = el;
         });
     });
-
-    // Reset all on mouse leave window
     document.addEventListener("mouseleave", () => {
-        tiltElements.forEach((el) => {
+        tiltEls.forEach(el => {
             const s = tiltState.get(el);
-            if (s) {
-                s.active = false;
-                s.targetRX = 0; s.targetRY = 0; s.targetScale = 1;
-                s.targetMx = 50; s.targetMy = 50;
-            }
+            if (s) { s.active=false; s.tRX=0; s.tRY=0; s.tS=1; s.tMx=50; s.tMy=50; }
         });
-        activeTiltEl = null;
+        activeTilt = null;
     });
 
-    /* ===== 6. Particle System — Optimized ===== */
-    const canvas = document.getElementById("particles");
-    if (canvas) {
-        const ctx = canvas.getContext("2d");
-        let particles = [];
-        const PARTICLE_COUNT = 45; // reduced for smoothness
-        let animFrameId;
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        resizeCanvas();
-        window.addEventListener("resize", resizeCanvas);
-
-        class Particle {
-            constructor() { this.reset(); }
-            reset() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2.5 + 0.8;
-                this.speedX = (Math.random() - 0.5) * 0.25;
-                this.speedY = (Math.random() - 0.5) * 0.25;
-                this.baseOpacity = Math.random() * 0.30 + 0.06;
-                this.hue = 160 + Math.random() * 40;
-                this.life = Math.random() * 400 + 250;
-                this.age = 0;
-                // Breathing phase offset
-                this.phase = Math.random() * Math.PI * 2;
-            }
-            update(time) {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                this.age++;
-                // Gentle breathing opacity
-                const breathe = Math.sin(time * 0.001 + this.phase) * 0.3 + 0.7;
-                this.currentOpacity = this.baseOpacity * breathe;
-                if (this.age > this.life || this.x < -20 || this.x > canvas.width + 20 ||
-                    this.y < -20 || this.y > canvas.height + 20) {
-                    this.reset();
-                }
-            }
-            draw() {
-                const fade = Math.min(1, this.age / 40) * Math.min(1, (this.life - this.age) / 40);
-                const alpha = this.currentOpacity * fade;
-                if (alpha < 0.01) return;
-
-                // Core dot
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = `hsla(${this.hue}, 75%, 55%, ${alpha})`;
-                ctx.fill();
-
-                // Soft glow
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size * 4, 0, Math.PI * 2);
-                ctx.fillStyle = `hsla(${this.hue}, 75%, 55%, ${alpha * 0.08})`;
-                ctx.fill();
-            }
-        }
-
-        for (let i = 0; i < PARTICLE_COUNT; i++) {
-            particles.push(new Particle());
-        }
-
-        function animateParticles(time) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach((p) => {
-                p.update(time);
-                p.draw();
-            });
-            animFrameId = requestAnimationFrame(animateParticles);
-        }
-        animateParticles(0);
-
-        // Pause particles when tab is hidden
-        document.addEventListener("visibilitychange", () => {
-            if (document.hidden) {
-                cancelAnimationFrame(animFrameId);
-            } else {
-                animateParticles(performance.now());
-            }
-        });
-    }
-
-    /* ===== 7. Year ===== */
+    /* 6. Year */
     const yearEl = document.querySelector("[data-year]");
     if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-    /* ===== 8. Contact Form ===== */
+    /* 7. Contact Form */
     const form = document.getElementById("contact-form");
     if (form) {
-        form.addEventListener("submit", (e) => {
+        form.addEventListener("submit", e => {
             e.preventDefault();
             const fd = new FormData(form);
-            const name = fd.get("name").trim();
-            const email = fd.get("email").trim();
-            const message = fd.get("message").trim();
-            const subject = encodeURIComponent(`来自个人主页的交流邀请：${name}`);
-            const body = encodeURIComponent(`姓名：${name}\n邮箱：${email}\n\n${message}`);
-            window.location.href = `mailto:1256381960@qq.com?subject=${subject}&body=${body}`;
+            const s = encodeURIComponent(`来自个人主页的交流邀请：${fd.get("name").trim()}`);
+            const b = encodeURIComponent(`姓名：${fd.get("name").trim()}\n邮箱：${fd.get("email").trim()}\n\n${fd.get("message").trim()}`);
+            window.location.href = `mailto:1256381960@qq.com?subject=${s}&body=${b}`;
         });
     }
 
-    /* ===== 9. Smooth scroll for anchor links ===== */
-    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-        anchor.addEventListener("click", (e) => {
-            const target = document.querySelector(anchor.getAttribute("href"));
-            if (target) {
-                e.preventDefault();
-                target.scrollIntoView({ behavior: "smooth", block: "start" });
-            }
+    /* 8. Smooth anchor scroll */
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener("click", e => {
+            const t = document.querySelector(a.getAttribute("href"));
+            if (t) { e.preventDefault(); t.scrollIntoView({ behavior:"smooth", block:"start" }); }
         });
     });
+
 })();
