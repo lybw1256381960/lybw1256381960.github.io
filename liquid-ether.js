@@ -1,21 +1,19 @@
 /**
  * LiquidEther - Fluid Background Animation
  * Based on React Bits (reactbits.dev) LiquidEther component
- * Ported to vanilla JavaScript for static HTML
  */
 
 (function() {
     'use strict';
 
-    // Configuration
     const config = {
-        colors: ['#c0eef5', '#c8f5ea', '#d8f5f2', '#edfafb'],
+        colors: ['#c0eef5', '#b8e8e0', '#d0f0ee', '#e8f8f5'],
         backgroundColor: '#f5fdfc',
-        mouseForce: 8,
-        cursorSize: 100,
+        mouseForce: 40,
+        cursorSize: 15,
         resolution: 0.5,
-        autoSpeed: 0.4,
-        autoIntensity: 1.0
+        autoSpeed: 0.3,
+        autoIntensity: 0.6
     };
 
     // Vertex Shader
@@ -27,7 +25,7 @@
         }
     `;
 
-    // Fragment Shader - Fluid Simulation
+    // Fragment Shader
     const fragmentShader = `
         uniform float uTime;
         uniform vec2 uResolution;
@@ -41,7 +39,7 @@
         
         varying vec2 vUv;
         
-        // Simplex noise function
+        // Simplex noise
         vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
         vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
         vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
@@ -60,8 +58,7 @@
                            + i.x + vec3(0.0, i1.x, 1.0));
             vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy),
                                    dot(x12.zw,x12.zw)), 0.0);
-            m = m*m;
-            m = m*m;
+            m = m*m; m = m*m;
             vec3 x = 2.0 * fract(p * C.www) - 1.0;
             vec3 h = abs(x) - 0.5;
             vec3 ox = floor(x + 0.5);
@@ -73,15 +70,14 @@
             return 130.0 * dot(m, g);
         }
         
-        // Fractional Brownian Motion — fewer octaves for softer look
         float fbm(vec2 p) {
             float value = 0.0;
-            float amplitude = 0.4;
-            float frequency = 1.0;
+            float amp = 0.4;
+            float freq = 1.0;
             for (int i = 0; i < 4; i++) {
-                value += amplitude * snoise(p * frequency);
-                amplitude *= 0.5;
-                frequency *= 1.8;
+                value += amp * snoise(p * freq);
+                amp *= 0.5;
+                freq *= 1.8;
             }
             return value;
         }
@@ -89,41 +85,45 @@
         void main() {
             vec2 uv = vUv;
             vec2 aspect = vec2(uResolution.x / uResolution.y, 1.0);
-            
-            // Slower time for gentle motion
             float time = uTime * 0.08;
-            
-            // Stretch the noise to make larger, calmer patterns
             float stretch = 0.6;
             
-            // Create fluid motion using FBM — stretched coordinates
+            // Base terrain
             vec2 q = vec2(0.0);
             q.x = fbm(uv * stretch + time * 0.3);
             q.y = fbm(uv * stretch + vec2(0.7));
-            
             vec2 r = vec2(0.0);
             r.x = fbm(uv * stretch + q + vec2(1.7, 9.2) + time * 0.2);
             r.y = fbm(uv * stretch + q + vec2(8.3, 2.8) + time * 0.25);
-            
-            // Domain warping for organic look
             float f = fbm(uv * stretch + r + time * 0.15);
             
-            // Mouse interaction (reduced influence)
+            // ─── Mouse interaction: directional ripple ──────────────────
             vec2 mouseUv = uMouse / uResolution;
-            float mouseDist = length((uv - mouseUv) * aspect);
-            float mouseInfluence = smoothstep(0.3, 0.0, mouseDist) * uMouseForce * 0.005;
-            f += mouseInfluence * sin(uTime * 2.0 + mouseDist * 8.0);
+            vec2 dir = uv - mouseUv;
+            float dist = length(dir * aspect);
             
-            // Color mapping — softer, closer to background
+            // Concentric ripple from mouse
+            float ripple = sin(dist * 20.0 - uTime * 4.0) * 0.15;
+            
+            // Directional push: fluid "flows away" from cursor
+            float dirPush = sin(atan(dir.y, dir.x) + uTime * 2.0) * 0.1;
+            
+            // Falloff: smooth circle around cursor
+            float falloff = smoothstep(0.35, 0.0, dist) * uMouseForce * 0.003;
+            
+            // Combine mouse effect into the intensity
+            float mouseEffect = (ripple + dirPush) * falloff * 5.0;
+            f += mouseEffect;
+            
+            // ─── Color mapping ─────────────────────────────────────────
             float intensity = smoothstep(-0.4, 0.8, f);
             
             vec3 color = uBgColor;
-            color = mix(color, uColor1, smoothstep(0.0, 0.5, intensity) * 0.7);
+            color = mix(color, uColor1, smoothstep(0.0, 0.5, intensity) * 0.6);
             color = mix(color, uColor2, smoothstep(0.3, 0.7, intensity) * 0.5);
             color = mix(color, uColor3, smoothstep(0.5, 0.9, intensity) * 0.3);
-            color = mix(color, uColor4, smoothstep(0.7, 1.0, intensity) * 0.15);
+            color = mix(color, uColor4, smoothstep(0.7, 1.0, intensity) * 0.12);
             
-            // No glow, no vignette — keep it subtle
             gl_FragColor = vec4(color, 1.0);
         }
     `;
@@ -136,14 +136,12 @@
             return;
         }
 
-        // Check for WebGL support
         const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
         if (!gl) {
             console.error('LiquidEther: WebGL not supported');
             return;
         }
 
-        // Scene setup
         const scene = new THREE.Scene();
         const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
         
@@ -156,7 +154,6 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-        // Parse colors
         function hexToRgb(hex) {
             const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
             return result ? {
@@ -169,7 +166,6 @@
         const colors = config.colors.map(hexToRgb);
         const bgColor = hexToRgb(config.backgroundColor);
 
-        // Create material
         const material = new THREE.ShaderMaterial({
             vertexShader: vertexShader,
             fragmentShader: fragmentShader,
@@ -186,23 +182,24 @@
             }
         });
 
-        // Create mesh
         const geometry = new THREE.PlaneGeometry(2, 2);
         const mesh = new THREE.Mesh(geometry, material);
         scene.add(mesh);
 
-        // Mouse tracking
+        // Mouse with smooth follow
         let mouseX = window.innerWidth / 2;
         let mouseY = window.innerHeight / 2;
         let targetMouseX = mouseX;
         let targetMouseY = mouseY;
 
+        // Track actual coordinates (not flipped for the shader)
+        // uMouse is already received as screen coords where Y=0 is bottom
         document.addEventListener('mousemove', (e) => {
             targetMouseX = e.clientX;
             targetMouseY = window.innerHeight - e.clientY;
         }, { passive: true });
 
-        // Touch support
+        // Touch
         document.addEventListener('touchmove', (e) => {
             if (e.touches.length > 0) {
                 targetMouseX = e.touches[0].clientX;
@@ -210,49 +207,39 @@
             }
         }, { passive: true });
 
-        // Resize handler
         window.addEventListener('resize', () => {
             renderer.setSize(window.innerWidth, window.innerHeight);
             material.uniforms.uResolution.value.set(window.innerWidth, window.innerHeight);
         }, { passive: true });
 
-        // Animation loop
+        // Animation
         let animationId;
         let isVisible = true;
         
         function animate() {
             if (!isVisible) return;
-            
             animationId = requestAnimationFrame(animate);
             
-            // Smooth mouse movement
-            mouseX += (targetMouseX - mouseX) * 0.1;
-            mouseY += (targetMouseY - mouseY) * 0.1;
+            // Smooth follow (lerp)
+            mouseX += (targetMouseX - mouseX) * 0.08;
+            mouseY += (targetMouseY - mouseY) * 0.08;
             
-            // Update uniforms
             material.uniforms.uTime.value += 0.016;
             material.uniforms.uMouse.value.set(mouseX, mouseY);
             
             renderer.render(scene, camera);
         }
 
-        // Visibility handling
         document.addEventListener('visibilitychange', () => {
             isVisible = !document.hidden;
-            if (isVisible) {
-                animate();
-            } else {
-                cancelAnimationFrame(animationId);
-            }
+            if (isVisible) animate();
+            else cancelAnimationFrame(animationId);
         });
 
-        // Start animation
         animate();
-        
-        console.log('LiquidEther: Initialized successfully');
+        console.log('LiquidEther: Initialized');
     }
 
-    // Initialize when DOM is ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
