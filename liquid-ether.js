@@ -9,13 +9,13 @@
 
     // Configuration
     const config = {
-        colors: ['#00d4ff', '#00ffcc', '#80f8ff', '#ffffff'],
+        colors: ['#c0eef5', '#c8f5ea', '#d8f5f2', '#edfafb'],
         backgroundColor: '#f5fdfc',
-        mouseForce: 20,
+        mouseForce: 8,
         cursorSize: 100,
         resolution: 0.5,
-        autoSpeed: 0.7,
-        autoIntensity: 6.0
+        autoSpeed: 0.4,
+        autoIntensity: 1.0
     };
 
     // Vertex Shader
@@ -73,15 +73,15 @@
             return 130.0 * dot(m, g);
         }
         
-        // Fractional Brownian Motion
+        // Fractional Brownian Motion — fewer octaves for softer look
         float fbm(vec2 p) {
             float value = 0.0;
-            float amplitude = 0.5;
+            float amplitude = 0.4;
             float frequency = 1.0;
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 4; i++) {
                 value += amplitude * snoise(p * frequency);
                 amplitude *= 0.5;
-                frequency *= 2.0;
+                frequency *= 1.8;
             }
             return value;
         }
@@ -90,46 +90,40 @@
             vec2 uv = vUv;
             vec2 aspect = vec2(uResolution.x / uResolution.y, 1.0);
             
-            // Time-based animation
-            float time = uTime * 0.15;
+            // Slower time for gentle motion
+            float time = uTime * 0.08;
             
-            // Create fluid motion using FBM
+            // Stretch the noise to make larger, calmer patterns
+            float stretch = 0.6;
+            
+            // Create fluid motion using FBM — stretched coordinates
             vec2 q = vec2(0.0);
-            q.x = fbm(uv * 2.0 + time * 0.5);
-            q.y = fbm(uv * 2.0 + vec2(1.0));
+            q.x = fbm(uv * stretch + time * 0.3);
+            q.y = fbm(uv * stretch + vec2(0.7));
             
             vec2 r = vec2(0.0);
-            r.x = fbm(uv * 2.0 + q + vec2(1.7, 9.2) + time * 0.3);
-            r.y = fbm(uv * 2.0 + q + vec2(8.3, 2.8) + time * 0.4);
+            r.x = fbm(uv * stretch + q + vec2(1.7, 9.2) + time * 0.2);
+            r.y = fbm(uv * stretch + q + vec2(8.3, 2.8) + time * 0.25);
             
             // Domain warping for organic look
-            float f = fbm(uv * 2.0 + r + time * 0.2);
+            float f = fbm(uv * stretch + r + time * 0.15);
             
-            // Mouse interaction
+            // Mouse interaction (reduced influence)
             vec2 mouseUv = uMouse / uResolution;
             float mouseDist = length((uv - mouseUv) * aspect);
-            float mouseInfluence = smoothstep(0.3, 0.0, mouseDist) * uMouseForce * 0.01;
-            f += mouseInfluence * sin(uTime * 3.0 + mouseDist * 10.0);
+            float mouseInfluence = smoothstep(0.3, 0.0, mouseDist) * uMouseForce * 0.005;
+            f += mouseInfluence * sin(uTime * 2.0 + mouseDist * 8.0);
             
-            // Color mapping based on fluid intensity
-            float intensity = smoothstep(-0.3, 1.2, f);
+            // Color mapping — softer, closer to background
+            float intensity = smoothstep(-0.4, 0.8, f);
             
-            // Mix colors based on intensity
             vec3 color = uBgColor;
-            color = mix(color, uColor1, smoothstep(0.0, 0.3, intensity));
-            color = mix(color, uColor2, smoothstep(0.2, 0.5, intensity));
-            color = mix(color, uColor3, smoothstep(0.4, 0.7, intensity));
-            color = mix(color, uColor4, smoothstep(0.6, 1.0, intensity));
+            color = mix(color, uColor1, smoothstep(0.0, 0.5, intensity) * 0.7);
+            color = mix(color, uColor2, smoothstep(0.3, 0.7, intensity) * 0.5);
+            color = mix(color, uColor3, smoothstep(0.5, 0.9, intensity) * 0.3);
+            color = mix(color, uColor4, smoothstep(0.7, 1.0, intensity) * 0.15);
             
-            // Add subtle glow
-            float glow = smoothstep(0.5, 1.0, intensity) * 0.3;
-            color += glow * uColor4;
-            
-            // Vignette
-            float vignette = 1.0 - length((uv - 0.5) * 1.2);
-            vignette = smoothstep(0.0, 0.7, vignette);
-            color = mix(uBgColor * 0.95, color, vignette);
-            
+            // No glow, no vignette — keep it subtle
             gl_FragColor = vec4(color, 1.0);
         }
     `;
