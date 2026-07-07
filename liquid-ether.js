@@ -18,10 +18,10 @@
         BFECC: true,
         resolution: 0.25,
         isBounce: false,
-        colors: ['#00c8e8', '#00e8c0', '#80f8ff', '#ffffff'],
+        colors: ['#00a8d8', '#00e0b0', '#50f0d8', '#b0fff4', '#ffffff'],
         autoDemo: true,
         autoSpeed: 0.7,
-        autoIntensity: 4.5,
+        autoIntensity: 8.0,
         takeoverDuration: 0.25,
         autoResumeDelay: 1000,
         autoRampDuration: 0.6
@@ -101,8 +101,8 @@
                 vec2 ratio = max(fboSize.x, fboSize.y) / fboSize;
                 // Subtle continuous background drift so it's never dead
                 vec2 bgDrift = vec2(
-                    sin(uv.y * 3.14159 + time * 0.6) * 0.003,
-                    cos(uv.x * 3.14159 + time * 0.4) * 0.003
+                    sin(uv.y * 3.14159 + time * 0.6) * 0.012,
+                    cos(uv.x * 3.14159 + time * 0.4) * 0.012
                 );
                 vec2 vel = texture2D(velocity, uv).xy + bgDrift;
                 if(isBFECC == false){
@@ -133,14 +133,14 @@
             varying vec2 uv;
             void main(){
                 vec2 vel = texture2D(velocity, uv).xy;
-                float lenv = clamp(length(vel), 0.0, 1.0);
-                // Amplify velocity for vivid color on light background
-                float lenvV = clamp(lenv * 1.8, 0.0, 1.0);
+                float lenv = length(vel);
+                // Non-linear map: amplify the display range so more screen lights up
+                float lenvV = clamp(pow(lenv, 0.5) * 3.5, 0.0, 1.0);
                 vec3 c = texture2D(palette, vec2(lenvV, 0.5)).rgb;
-                // Screen blend: bg + color - bg*color = vivid on white, dark on black
-                vec3 outRGB = c + bgColor.rgb - c * bgColor.rgb;
-                // Boost low-vel so fluid is always visible
-                float alpha = clamp(0.12 + lenv * 0.88, 0.0, 1.0);
+                // Screen blend against white background — vivid, never muddy
+                vec3 outRGB = 1.0 - (1.0 - c) * (1.0 - bgColor.rgb);
+                // Even near-zero velocity gets a soft base glow so fluid is always visible
+                float alpha = clamp(0.20 + lenv * 1.8, 0.18, 0.92);
                 gl_FragColor = vec4(outRGB, alpha);
             }
         `;
@@ -658,8 +658,8 @@
                         const vv = (Math.floor(i / w)) / h * 2 - 1;
                         const angle = Math.atan2(vv, u);
                         const dist = Math.sqrt(u*u + vv*vv);
-                        data[i*4]   = -Math.sin(angle) * Math.max(0, 1 - dist) * 2.5;
-                        data[i*4+1] =  Math.cos(angle) * Math.max(0, 1 - dist) * 2.5;
+                        data[i*4]   = -Math.sin(angle) * Math.max(0, 1 - dist) * 3.5;
+                        data[i*4+1] =  Math.cos(angle) * Math.max(0, 1 - dist) * 3.5;
                         data[i*4+2] = 0;
                         data[i*4+3] = 1;
                     }
@@ -773,7 +773,7 @@
                             velocity: { value: this.simulation.fbos.vel_0.texture },
                             boundarySpace: { value: new THREE.Vector2() },
                             palette: { value: paletteTex },
-                            bgColor: { value: new THREE.Vector4(1, 1, 1, 0.08) }
+                            bgColor: { value: new THREE.Vector4(1, 1, 1, 0.12) }
                         }
                     })
                 );
