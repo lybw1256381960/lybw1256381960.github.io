@@ -20,11 +20,11 @@
 <body>
     <a class="skip-link" href="#main">跳转到主要内容</a>
 
-    <!-- ColorBends 流体渐变背景层 -->
-    <div class="parallax-bg" data-parallax>
-        <!-- WebGL ColorBends Shader Canvas -->
-        <canvas id="colorbends-canvas"></canvas>
-        <!-- CSS 辅助弥散光斑（轻微，不遮挡主shader） -->
+    <!-- LiquidEther 流体背景（全屏固定，不受视差影响） -->
+    <canvas id="liquid-ether-canvas"></canvas>
+
+    <!-- 视差弥散光斑层（叠加在流体上方，透明度极低） -->
+    <div class="parallax-bg" data-parallax aria-hidden="true">
         <div class="orb orb-1"></div>
         <div class="orb orb-4"></div>
     </div>
@@ -386,6 +386,7 @@
         <p>© <span data-year>2026</span> 林韦婧 · Service Design & User Research</p>
     </footer>
 
+    <script src="liquid-ether.js" defer></script>
     <script src="script.js" defer></script>
 </body>
 </html>

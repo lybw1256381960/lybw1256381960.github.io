@@ -6,21 +6,18 @@
     "use strict";
 
     /* ═══════════════════════════════════════════════════════════
-       PART 1: ColorBends WebGL Shader Background
-       参数映射自 React ColorBends 组件
-       colors=["#06d492","#f37eef","#19c5ff"] rotation=85
-       speed=0.3, autoRotate=0.5, scale=1.8, frequency=2
-       warpStrength=1, mouseInfluence=1.2, parallax=0.7
-       noise=0.1, iterations=2, intensity=1.2, bandWidth=6
+       PART 1: LiquidEther Fluid Background
+       由 liquid-ether.js 接管
     ═══════════════════════════════════════════════════════════ */
 
-    const cbCanvas = document.getElementById("colorbends-canvas");
+    const cbCanvas = document.getElementById("liquid-ether-canvas");
     if (cbCanvas) {
-        const gl = cbCanvas.getContext("webgl") || cbCanvas.getContext("experimental-webgl");
-        if (gl) {
-            const VERT = `
-                attribute vec2 a_pos;
-                void main() { gl_Position = vec4(a_pos, 0.0, 1.0); }`;
+        // Handled by liquid-ether.js
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       PART 2: UI Interactions
+    ═══════════════════════════════════════════════════════════ */
 
             const FRAG = `
                 precision highp float;

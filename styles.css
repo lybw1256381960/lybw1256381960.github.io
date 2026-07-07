@@ -33,13 +33,16 @@ ul { list-style: none; }
 
 /* ===== Parallax Background Orbs ===== */
 .parallax-bg {
-    position: fixed; inset: 0; pointer-events: none; z-index: -2;
+    position: fixed; inset: 0; pointer-events: none; z-index: -1;
     will-change: transform;
 }
 
-#colorbends-canvas {
-    position: absolute; inset: 0; width: 100%; height: 100%;
+#liquid-ether-canvas {
+    position: fixed; top: 0; left: 0;
+    width: 100vw; height: 100vh;
     display: block;
+    z-index: -2;
+    pointer-events: none;
 }
 
 .orb {
@@ -48,10 +51,10 @@ ul { list-style: none; }
     pointer-events: none;
 }
 .orb-1 { width: 500px; height: 500px; top: -10%; left: -5%;
-    background: radial-gradient(circle, rgba(6,212,146,0.12), rgba(25,197,255,0.04) 55%, transparent);
+    background: radial-gradient(circle, rgba(39,217,255,0.08), rgba(32,255,209,0.04) 55%, transparent);
     animation: orbDrift1 28s ease-in-out infinite alternate; }
 .orb-4 { width: 450px; height: 450px; bottom: 5%; right: -8%;
-    background: radial-gradient(circle, rgba(243,126,239,0.10), rgba(6,212,146,0.04) 55%, transparent);
+    background: radial-gradient(circle, rgba(32,255,209,0.06), rgba(180,242,255,0.03) 55%, transparent);
     animation: orbDrift1 32s ease-in-out infinite alternate-reverse; }
 
 @keyframes orbDrift1 { 0%{transform:translate(0,0) scale(1)} 100%{transform:translate(40px,-50px) scale(1.05)} }
