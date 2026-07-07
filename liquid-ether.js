@@ -244,7 +244,10 @@
             init(container) {
                 this.container = container;
                 this.pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
-                this.resize();
+                // Use window size for full-screen canvas
+                this.width = Math.max(1, window.innerWidth);
+                this.height = Math.max(1, window.innerHeight);
+                this.aspect = this.width / this.height;
                 this.renderer = new THREE.WebGLRenderer({
                     antialias: true, alpha: true, canvas: canvas
                 });
@@ -257,9 +260,9 @@
             },
             resize() {
                 if (!this.container) return;
-                const rect = this.container.getBoundingClientRect();
-                this.width = Math.max(1, Math.floor(rect.width));
-                this.height = Math.max(1, Math.floor(rect.height));
+                // Always use window size for full-screen canvas
+                this.width = Math.max(1, window.innerWidth);
+                this.height = Math.max(1, window.innerHeight);
                 this.aspect = this.width / this.height;
                 if (this.renderer) {
                     this.renderer.setSize(this.width, this.height, false);
