@@ -18,7 +18,7 @@
         BFECC: true,
         resolution: 0.25,
         isBounce: false,
-        colors: ['#06d6f0', '#00f5c4', '#e0fafc'],
+        colors: ['#00c8e8', '#00e8c0', '#80f8ff', '#ffffff'],
         autoDemo: true,
         autoSpeed: 0.7,
         autoIntensity: 4.5,
@@ -134,13 +134,14 @@
             void main(){
                 vec2 vel = texture2D(velocity, uv).xy;
                 float lenv = clamp(length(vel), 0.0, 1.0);
-                // Boost low-velocity areas so screen is never dark
-                float lenvBoost = lenv + (1.0 - lenv) * 0.08;
-                lenvBoost = clamp(lenvBoost, 0.0, 1.0);
-                vec3 c = texture2D(palette, vec2(lenvBoost, 0.5)).rgb;
-                vec3 outRGB = mix(bgColor.rgb, c, clamp(lenv * 2.5, 0.0, 1.0));
-                float outA = mix(bgColor.a, 1.0, lenv);
-                gl_FragColor = vec4(outRGB, outA);
+                // Amplify velocity for vivid color on light background
+                float lenvV = clamp(lenv * 1.8, 0.0, 1.0);
+                vec3 c = texture2D(palette, vec2(lenvV, 0.5)).rgb;
+                // Screen blend: bg + color - bg*color = vivid on white, dark on black
+                vec3 outRGB = c + bgColor.rgb - c * bgColor.rgb;
+                // Boost low-vel so fluid is always visible
+                float alpha = clamp(0.12 + lenv * 0.88, 0.0, 1.0);
+                gl_FragColor = vec4(outRGB, alpha);
             }
         `;
 
@@ -767,11 +768,12 @@
                         fragmentShader: color_frag,
                         transparent: true,
                         depthWrite: false,
+                        blending: THREE.NormalBlending,
                         uniforms: {
                             velocity: { value: this.simulation.fbos.vel_0.texture },
                             boundarySpace: { value: new THREE.Vector2() },
                             palette: { value: paletteTex },
-                            bgColor: { value: new THREE.Vector4(0.01, 0.05, 0.08, 0.0) }
+                            bgColor: { value: new THREE.Vector4(1, 1, 1, 0.08) }
                         }
                     })
                 );

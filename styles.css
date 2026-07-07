@@ -1,8 +1,8 @@
 :root {
-    --bg: #020c10;
-    --text: #c8f5f0;
-    --text-soft: #7dd8d0;
-    --text-muted: #4aa89e;
+    --bg: #f5fdfc;
+    --text: #0c2c2e;
+    --text-soft: #2e6062;
+    --text-muted: #6a9e9f;
     --teal: #00e8d0;
     --cyan: #00d4ff;
     --mint: #30d6a8;
@@ -11,9 +11,9 @@
     --radius: 20px;
     --radius-sm: 12px;
     --max: 1200px;
-    --glass-bg: rgba(0, 30, 28, 0.55);
-    --glass-border: rgba(255, 255, 255, 0.55);
-    --glass-shadow: 0 8px 40px rgba(0, 140, 130, 0.08), inset 0 1px 0 rgba(255,255,255,0.6);
+    --glass-bg: rgba(255, 255, 255, 0.58);
+    --glass-border: rgba(0, 200, 180, 0.18);
+    --glass-shadow: 0 8px 40px rgba(0, 140, 130, 0.10), inset 0 1px 0 rgba(255,255,255,0.9);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -51,10 +51,10 @@ ul { list-style: none; }
     pointer-events: none;
 }
 .orb-1 { width: 500px; height: 500px; top: -10%; left: -5%;
-    background: radial-gradient(circle, rgba(39,217,255,0.12), rgba(32,255,209,0.06) 55%, transparent);
+    background: radial-gradient(circle, rgba(0,200,180,0.10), rgba(0,220,255,0.05) 55%, transparent);
     animation: orbDrift1 28s ease-in-out infinite alternate; }
 .orb-4 { width: 450px; height: 450px; bottom: 5%; right: -8%;
-    background: radial-gradient(circle, rgba(32,255,209,0.10), rgba(180,242,255,0.05) 55%, transparent);
+    background: radial-gradient(circle, rgba(0,220,200,0.08), rgba(80,240,220,0.04) 55%, transparent);
     animation: orbDrift1 32s ease-in-out infinite alternate-reverse; }
 
 @keyframes orbDrift1 { 0%{transform:translate(0,0) scale(1)} 100%{transform:translate(40px,-50px) scale(1.05)} }
