@@ -8,9 +8,9 @@
 
   // ─── Config ───────────────────────────────────────────────────────────────
   const CONFIG = {
-    colors: ['#c0eef5', '#b8e8e0', '#d8f0ec', '#e8f8f5', '#f0fafa'],
-    mouseForce: 30,
-    cursorSize: 60,
+    colors: ['#0055aa', '#0088dd', '#00c3ff', '#00e8d0', '#30ffcc'],
+    mouseForce: 35,
+    cursorSize: 50,
     resolution: 0.4,
     dt: 0.014,
     BFECC: true,
@@ -21,7 +21,7 @@
     isBounce: false,
     autoDemo: true,
     autoSpeed: 0.15,
-    autoIntensity: 0.8,
+    autoIntensity: 1.5,
     takeoverDuration: 0.25,
     autoResumeDelay: 3000,
     autoRampDuration: 0.6,
@@ -408,10 +408,11 @@
     void main(){
       vec2 vel = texture2D(velocity, uv).xy;
       float lenv = clamp(length(vel), 0.0, 1.0);
-      vec3 c = texture2D(palette, vec2(lenv, 0.5)).rgb;
-      vec3 outRGB = mix(bgColor.rgb, c, lenv);
-      float outA = mix(bgColor.a, 1.0, lenv);
-      gl_FragColor = vec4(outRGB, outA);
+      // boost to make low-velocity visible
+      float boosted = pow(lenv, 0.5);
+      vec3 c = texture2D(palette, vec2(boosted, 0.5)).rgb;
+      float alpha = clamp(boosted * 0.8, 0.0, 1.0);
+      gl_FragColor = vec4(c, alpha);
     }
   `;
 
