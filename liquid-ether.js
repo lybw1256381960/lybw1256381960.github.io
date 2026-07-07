@@ -18,10 +18,10 @@
         BFECC: true,
         resolution: 0.5,
         isBounce: false,
-        colors: ['#27d9ff', '#20ffd1', '#b4f2ff'],
+        colors: ['#06d6f0', '#00f5c4', '#e0fafc'],
         autoDemo: true,
-        autoSpeed: 0.5,
-        autoIntensity: 2.2,
+        autoSpeed: 1.2,
+        autoIntensity: 4.5,
         takeoverDuration: 0.25,
         autoResumeDelay: 1000,
         autoRampDuration: 0.6
@@ -631,19 +631,44 @@
                 const isIOS = /(iPad|iPhone|iPod)/i.test(navigator.userAgent);
                 return isIOS ? THREE.HalfFloatType : THREE.FloatType;
             }
-            createFBO(w, h, type) {
+            createFBO(w, h, type, seedVelocity) {
                 const opts = {
                     type, depthBuffer: false, stencilBuffer: false,
                     minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter,
                     wrapS: THREE.ClampToEdgeWrapping, wrapT: THREE.ClampToEdgeWrapping
                 };
-                return new THREE.WebGLRenderTarget(w, h, opts);
+                const rt = new THREE.WebGLRenderTarget(w, h, opts);
+                // Seed with initial velocity to avoid black screen
+                if (seedVelocity) {
+                    const data = new Float32Array(w * h * 4);
+                    for (let i = 0; i < w * h; i++) {
+                        // Circular swirl patterns
+                        const u = (i % w) / w * 2 - 1;
+                        const v = (Math.floor(i / w)) / h * 2 - 1;
+                        const angle = Math.atan2(v, u);
+                        const dist = Math.sqrt(u*u + v*v);
+                        // Tangential velocity = swirl
+                        data[i*4]   = -Math.sin(angle) * Math.max(0, 1 - dist) * 1.5;
+                        data[i*4+1] =  Math.cos(angle) * Math.max(0, 1 - dist) * 1.5;
+                        data[i*4+2] = 0;
+                        data[i*4+3] = 1;
+                    }
+                    rt.texture.image = { width: w, height: h, data: data };
+                    // Force update
+                    const gl = Common.renderer.getContext();
+                    gl.bindTexture(gl.TEXTURE_2D, rt.texture);
+                    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, type, data);
+                    gl.bindTexture(gl.TEXTURE_2D, null);
+                }
+                return rt;
             }
             init() {
                 this.calcSize();
                 const type = this.getFloatType();
-                ['vel_0', 'vel_1', 'vel_viscous0', 'vel_viscous1', 'div', 'pressure_0', 'pressure_1']
-                    .forEach(k => this.fbos[k] = this.createFBO(this.fboSize.x, this.fboSize.y, type));
+                this.fbos.vel_0 = this.createFBO(this.fboSize.x, this.fboSize.y, type, true); // seed
+                this.fbos.vel_1 = this.createFBO(this.fboSize.x, this.fboSize.y, type, true); // seed
+                ['vel_viscous0', 'vel_viscous1', 'div', 'pressure_0', 'pressure_1']
+                    .forEach(k => this.fbos[k] = this.createFBO(this.fboSize.x, this.fboSize.y, type, false));
 
                 this.advection = new Advection({
                     cellScale: this.cellScale, fboSize: this.fboSize,
@@ -731,7 +756,7 @@
                             velocity: { value: this.simulation.fbos.vel_0.texture },
                             boundarySpace: { value: new THREE.Vector2() },
                             palette: { value: paletteTex },
-                            bgColor: { value: new THREE.Vector4(0, 0, 0, 0) }
+                            bgColor: { value: new THREE.Vector4(0.04, 0.12, 0.18, 0.0) }
                         }
                     })
                 );
