@@ -18,7 +18,7 @@
         BFECC: true,
         resolution: 0.5,
         isBounce: false,
-        colors: ['#5227FF', '#FF9FFC', '#B497CF'],
+        colors: ['#27d9ff', '#20ffd1', '#b4f2ff'],
         autoDemo: true,
         autoSpeed: 0.5,
         autoIntensity: 2.2,
