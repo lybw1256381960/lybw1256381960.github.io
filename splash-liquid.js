@@ -27,10 +27,10 @@
   };
 
   const PALETTE = [
-    [0x06, 0xd6, 0xf0],   // #06d6f0 cyan
-    [0x00, 0xf5, 0xc4],   // #00f5c4 teal
-    [0x27, 0xd9, 0xff],   // #27d9ff light blue
-    [0x00, 0xe8, 0xd0],   // #00e8d0 jade
+    [0x00, 0x7a, 0x8a],   // #007a8a deep teal
+    [0x00, 0x5f, 0x6e],   // #005f6e darker teal
+    [0x00, 0x48, 0x55],   // #004855 deep teal-navy
+    [0x00, 0x93, 0x7d],   // #00937d rich jade
   ];
 
   /* ── Math helpers ───────────────────────────────────────────── */
