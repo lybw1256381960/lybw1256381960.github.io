@@ -294,45 +294,40 @@
 
   /* ── 10. Gallery Drag Scroll ───────────────────────────────── */
   function initGallery() {
-    const track = $('.circular-track');
-    const wrap  = $('.gallery-scroll-wrap');
-    if (!track || !wrap) return;
+    const container = $('#projects-gallery');
+    if (!container) return;
 
-    let isDown = false;
-    let startX = 0;
-    let scrollLeft = 0;
+    // Project items for the 3D circular gallery
+    const galleryItems = [
+      { image: 'assets/project-bamboo-overview.jpg',  text: '竹构美好' },
+      { image: 'assets/project-bamboo-detail.jpg',   text: '竹构美好' },
+      { image: 'assets/project-secondlife-detail.jpg', text: '第二次生命' },
+      { image: 'assets/project-maigua-detail.jpg',  text: '变卦' },
+      { image: 'assets/project-drone-detail.jpg',   text: '穿隧蜂' },
+    ];
 
-    track.addEventListener('mousedown', (e) => {
-      isDown = true;
-      track.style.cursor = 'grabbing';
-      startX = e.pageX - wrap.offsetLeft;
-      scrollLeft = wrap.scrollLeft;
+    // Wait for OGL to be ready
+    if (typeof CircularGallery === 'undefined') {
+      console.warn('CircularGallery not loaded');
+      return;
+    }
+
+    const gallery = new CircularGallery({
+      container: '#projects-gallery',
+      items: galleryItems,
+      bend: 2.5,
+      textColor: '#005f6e',
+      borderRadius: 0.06,
+      scrollEase: 0.04,
+      scrollSpeed: 1.8,
+      font: 'bold 24px "Space Grotesk", sans-serif',
+      labelOffsetY: 0.22,
     });
 
-    document.addEventListener('mouseup', () => {
-      isDown = false;
-      track.style.cursor = 'grab';
-    });
+    gallery.start();
 
-    document.addEventListener('mousemove', (e) => {
-      if (!isDown) return;
-      e.preventDefault();
-      const x = e.pageX - wrap.offsetLeft;
-      const walk = (x - startX) * 1.5;
-      wrap.scrollLeft = scrollLeft - walk;
-    });
-
-    // Touch support
-    track.addEventListener('touchstart', (e) => {
-      startX = e.touches[0].pageX - wrap.offsetLeft;
-      scrollLeft = wrap.scrollLeft;
-    }, { passive: true });
-
-    track.addEventListener('touchmove', (e) => {
-      const x = e.touches[0].pageX - wrap.offsetLeft;
-      const walk = (x - startX) * 1.5;
-      wrap.scrollLeft = scrollLeft - walk;
-    }, { passive: true });
+    // Store for cleanup if needed
+    window._circularGallery = gallery;
   }
 
   /* ── 11. Tool Bar Animations ──────────────────────────────── */

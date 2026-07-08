@@ -377,99 +377,34 @@
                 <h2>项目作品</h2>
                 <p>从用户研究、系统策略、原型表达到成果转化。</p>
             </div>
-            <div class="projects-grid">
-
-                <!-- Bento 特色大卡 — 左列跨两行 -->
-                <article class="glass-panel bento-featured" data-tilt>
-                    <div class="bento-featured-img">
-                        <img src="assets/project-bamboo-overview.jpg" alt="竹构美好" loading="eager">
-                    </div>
-                    <div class="bento-featured-body">
-                        <div class="project-tags">
-                            <span class="tag-primary">服务设计</span>
-                            <span>非遗数字化</span>
-                            <span>UX/UI</span>
-                        </div>
-                        <h3>竹构美好：竹艺数智服务系统</h3>
-                        <p>围绕传统竹艺的数字化传承与服务创新，构建资料库、云端博物馆、AI竹艺编辑器和3D智能扫描等触点，探索非遗活化的云端新生态。</p>
-                        <dl class="project-meta">
-                            <div><dt>角色</dt><dd>项目负责人</dd></div>
-                            <div><dt>奖项</dt><dd>大广赛二等奖 · iCCA铜奖 · NCDA国奖 · RCCSE期刊收录</dd></div>
-                        </dl>
-                        <a class="project-link" href="#">查看详情 →</a>
-                    </div>
-                </article>
-
-                <!-- 右列 3 个小卡 -->
-                <article class="glass-panel bento-small" data-tilt>
-                    <div class="bento-small-img">
-                        <img src="assets/project-secondlife-detail.jpg" alt="第二次生命" loading="lazy">
-                        <span class="project-year">2024</span>
-                    </div>
-                    <div class="bento-small-body">
-                        <div class="project-tags"><span class="tag-primary">产品设计</span><span>可持续</span></div>
-                        <h3>第二次生命</h3>
-                        <p>将花瓶外包装转化为可种植容器，实现"包装→花盆→土壤"全生命周期闭环。</p>
-                        <span class="bento-small-award">泰隆杯银奖 · DOA全国二等奖</span>
-                    </div>
-                </article>
-
-                <article class="glass-panel bento-small" data-tilt>
-                    <div class="bento-small-img">
-                        <img src="assets/project-maigua-detail.jpg" alt="变卦" loading="lazy">
-                        <span class="project-year">2024</span>
-                    </div>
-                    <div class="bento-small-body">
-                        <div class="project-tags"><span class="tag-primary">产品设计</span><span>NFC</span><span>教育</span></div>
-                        <h3>变卦 — 儿童易经教育棋</h3>
-                        <p>以周易文化为灵感，结合NFC交互，将传统文化转化为儿童可操作的学习体验。</p>
-                        <span class="bento-small-award">教育装备展银奖 · DOA三等奖</span>
-                    </div>
-                </article>
-
-                <article class="glass-panel bento-small bento-small-tall" data-tilt>
-                    <div class="bento-small-img">
-                        <img src="assets/project-drone-service.jpg" alt="穿隧蜂" loading="lazy">
-                        <span class="project-year">2023</span>
-                    </div>
-                    <div class="bento-small-body">
-                        <div class="project-tags"><span class="tag-primary">产品设计</span><span>智能交互</span></div>
-                        <h3>穿隧蜂 — 炮射无人机</h3>
-                        <p>面向农业植保与多场景应用，可折叠炮射无人机与集群反射平台方案。</p>
-                        <span class="bento-small-award">挑战杯校级奖</span>
-                    </div>
-                </article>
-
+            <!-- CircularGallery 3D 透视轮播 — OGL WebGL -->
+            <div class="circular-gallery-wrap">
+                <div class="circular-gallery-hint">
+                    <span>拖拽</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    <span>滚动</span>
+                </div>
+                <div id="projects-gallery"></div>
             </div>
 
-            <!-- CircularGallery 水平画廊 -->
-            <div class="gallery-section">
-                <div class="gallery-strap">
-                    <h3>精选图片</h3>
-                    <p>拖拽浏览 →</p>
-                </div>
-                <div class="gallery-scroll-wrap">
-                    <div class="circular-track" role="list" aria-label="作品集图片画廊">
-                        <figure class="circular-item" role="listitem">
-                            <img src="assets/project-bamboo-overview.jpg" alt="竹构美好概览" loading="lazy">
-                            <figcaption><h4>竹构美好</h4><p>服务系统架构</p></figcaption>
-                        </figure>
-                        <figure class="circular-item" role="listitem">
-                            <img src="assets/project-bamboo-detail.jpg" alt="竹构美好详情" loading="lazy">
-                            <figcaption><h4>竹构美好</h4><p>多触点服务</p></figcaption>
-                        </figure>
-                        <figure class="circular-item" role="listitem">
-                            <img src="assets/project-secondlife-detail.jpg" alt="第二次生命" loading="lazy">
-                            <figcaption><h4>第二次生命</h4><p>材料迭代</p></figcaption>
-                        </figure>
-                        <figure class="circular-item" role="listitem">
-                            <img src="assets/project-maigua-detail.jpg" alt="变卦" loading="lazy">
-                            <figcaption><h4>变卦</h4><p>NFC交互</p></figcaption>
-                        </figure>
-                        <figure class="circular-item" role="listitem">
-                            <img src="assets/project-drone-detail.jpg" alt="穿隧蜂" loading="lazy">
-                            <figcaption><h4>穿隧蜂</h4><p>多场景应用</p></figcaption>
-                        </figure>
+            <!-- 项目列表补充信息 -->
+            <div class="projects-detail-row">
+                <div class="projects-detail-grid">
+                    <div class="glass-panel project-detail-card" data-tilt>
+                        <span class="tag-primary">服务设计</span>
+                        <h3>竹构美好：竹艺数智服务系统</h3>
+                        <p>围绕传统竹艺的数字化传承与服务创新，构建资料库、云端博物馆、AI竹艺编辑器和3D智能扫描等触点。</p>
+                        <div class="project-awards">
+                            <span>大广赛二等奖</span><span>iCCA铜奖</span><span>NCDA国奖</span>
+                        </div>
+                    </div>
+                    <div class="glass-panel project-detail-card" data-tilt>
+                        <span class="tag-primary">产品设计</span>
+                        <h3>第二次生命 · 变卦 · 穿隧蜂</h3>
+                        <p>可持续花盆包装、NFC儿童教具、智能农业无人机——从材料到交互的系统性产品设计实践。</p>
+                        <div class="project-awards">
+                            <span>泰隆杯银奖</span><span>DOA二等奖</span><span>教育装备展银奖</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -576,6 +511,8 @@
     <!-- Scripts -->
     <script src="assets/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="assets/ogl.min.js"></script>
+    <script src="circular-gallery.js"></script>
     <script src="liquid-ether.js"></script>
     <script src="splash-liquid.js"></script>
     <script src="script.js"></script>
