@@ -1076,13 +1076,17 @@
       autoRampDuration: CONFIG.autoRampDuration,
     });
 
-    webgl.start();
-    console.log('LiquidEther: Navier-Stokes fluid simulation initialized');
+    try {
+      webgl.start();
+      console.log('LiquidEther: Navier-Stokes fluid simulation initialized');
+    } catch (e) {
+      console.warn('LiquidEther init failed:', e);
+    }
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', () => { try { init(); } catch(e) { console.warn('LiquidEther bootstrap failed:', e); } });
   } else {
-    init();
+    try { init(); } catch(e) { console.warn('LiquidEther bootstrap failed:', e); }
   }
 })();

@@ -29,8 +29,17 @@
   /* ── 2. Splash Screen ──────────────────────────────────────── */
   function initSplash() {
     const splash = $('#splash');
-    const progress = $('#splash-progress');
     if (!splash) return;
+
+    // ── Hard fallback: always hide splash after max 4s ──
+    const splashTimer = setTimeout(() => {
+      splash.style.opacity = '0';
+      splash.style.transition = 'opacity 0.9s ease';
+      setTimeout(() => {
+        splash.style.display = 'none';
+        splash.setAttribute('aria-hidden', 'true');
+      }, 950);
+    }, 4000);
 
     let splashLiquid;
 
@@ -38,16 +47,21 @@
     try {
       if (typeof SplashLiquid !== 'undefined') {
         splashLiquid = new SplashLiquid('splash-canvas');
-        splashLiquid.start();
+        try { splashLiquid.start(); } catch (e2) { console.warn('SplashLiquid.start failed:', e2); }
       }
     } catch (e) {
       console.warn('SplashLiquid init failed:', e);
     }
 
+    // No GSAP — rely on timer fallback
+    if (typeof gsap === 'undefined') return;
+
+    const progress = $('#splash-progress');
+
     // Timeline
     const tl = gsap.timeline({
       onComplete: () => {
-        // Fade out splash
+        clearTimeout(splashTimer);
         gsap.to(splash, {
           opacity: 0,
           duration: 0.9,
@@ -56,8 +70,6 @@
             splash.style.display = 'none';
             splash.setAttribute('aria-hidden', 'true');
             if (splashLiquid) splashLiquid.stop();
-            // Init main page liquid ether
-            initMainLiquid();
           }
         });
       }
@@ -66,19 +78,19 @@
     // Wait for progress bar to complete + a bit extra
     tl.to({}, { duration: 2.8 });
 
+    // Animate progress bar
+    if (progress) {
+      gsap.fromTo(progress,
+        { scaleX: 0 },
+        { scaleX: 1, duration: 2.0, ease: 'power2.inOut', delay: 0.1 }
+      );
+    }
+
     // Mouse interaction on splash canvas
     if (splashLiquid) {
       splash.addEventListener('mousemove', (e) => {
         splashLiquid.splatEvent(e);
       });
-    }
-
-    // Animate progress bar
-    if (progress) {
-      gsap.fromTo(progress,
-        { scaleX: 0 },
-        { scaleX: 1, duration: 2.6, ease: 'power2.inOut', delay: 0.1 }
-      );
     }
   }
 
@@ -292,10 +304,12 @@
     });
   }
 
-  /* ── 10. Gallery Drag Scroll ───────────────────────────────── */
+  /* ── 10. Gallery ──────────────────────────────────────────── */
   function initGallery() {
     const container = $('#projects-gallery');
     if (!container) return;
+
+    try {
 
     // Project items for the 3D circular gallery
     const galleryItems = [
@@ -328,6 +342,9 @@
 
     // Store for cleanup if needed
     window._circularGallery = gallery;
+  } catch (e) {
+      console.warn('Gallery init failed:', e);
+  }
   }
 
   /* ── 11. Tool Bar Animations ──────────────────────────────── */
