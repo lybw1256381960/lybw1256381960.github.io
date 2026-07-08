@@ -304,47 +304,19 @@
     });
   }
 
-  /* ── 10. Gallery ──────────────────────────────────────────── */
+  /* ── 10. Project Photo Grid Hover Effects ───────────────────── */
   function initGallery() {
-    const container = $('#projects-gallery');
-    if (!container) return;
-
-    try {
-
-    // Project items for the 3D circular gallery
-    const galleryItems = [
-      { image: 'assets/project-bamboo-overview.jpg',  text: '竹构美好' },
-      { image: 'assets/project-bamboo-detail.jpg',   text: '竹构美好' },
-      { image: 'assets/project-secondlife-detail.jpg', text: '第二次生命' },
-      { image: 'assets/project-maigua-detail.jpg',  text: '变卦' },
-      { image: 'assets/project-drone-detail.jpg',   text: '穿隧蜂' },
-    ];
-
-    // Wait for OGL to be ready
-    if (typeof CircularGallery === 'undefined') {
-      console.warn('CircularGallery not loaded');
-      return;
-    }
-
-    const gallery = new CircularGallery({
-      container: '#projects-gallery',
-      items: galleryItems,
-      bend: 2.5,
-      textColor: '#005f6e',
-      borderRadius: 0.06,
-      scrollEase: 0.04,
-      scrollSpeed: 1.8,
-      font: 'bold 24px "Space Grotesk", sans-serif',
-      labelOffsetY: 0.22,
+    // Project photo cards: subtle scale on hover
+    const cards = $$('.project-photo-card');
+    if (!cards.length) return;
+    cards.forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        gsap.to(card, { scale: 1.03, duration: 0.4, ease: 'power2.out' });
+      });
+      card.addEventListener('mouseleave', () => {
+        gsap.to(card, { scale: 1, duration: 0.5, ease: 'power2.out' });
+      });
     });
-
-    gallery.start();
-
-    // Store for cleanup if needed
-    window._circularGallery = gallery;
-  } catch (e) {
-      console.warn('Gallery init failed:', e);
-  }
   }
 
   /* ── 11. Tool Bar Animations ──────────────────────────────── */

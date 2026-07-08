@@ -377,17 +377,60 @@
                 <h2>项目作品</h2>
                 <p>从用户研究、系统策略、原型表达到成果转化。</p>
             </div>
-            <!-- CircularGallery 3D 透视轮播 — OGL WebGL -->
-            <div class="circular-gallery-wrap">
-                <div class="circular-gallery-hint">
-                    <span>拖拽</span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                    <span>滚动</span>
+            <!-- 项目图片网格 -->
+            <div class="projects-photo-grid">
+                <div class="project-photo-card glass-panel" data-tilt>
+                    <div class="project-photo-img" style="background-image:url('assets/project-bamboo-overview.jpg')"></div>
+                    <div class="project-photo-overlay">
+                        <span class="tag-primary">服务设计</span>
+                        <h3>竹构美好</h3>
+                        <p>竹艺数智服务系统</p>
+                        <div class="project-photo-awards">
+                            <span>大广赛二等奖</span><span>iCCA铜奖</span><span>NCDA国奖</span>
+                        </div>
+                    </div>
                 </div>
-                <div id="projects-gallery"></div>
+                <div class="project-photo-card project-photo-card--tall glass-panel" data-tilt>
+                    <div class="project-photo-img" style="background-image:url('assets/project-bamboo-detail.jpg')"></div>
+                    <div class="project-photo-overlay">
+                        <span class="tag-primary">服务设计</span>
+                        <h3>竹构美好</h3>
+                        <p>数字化触点界面</p>
+                    </div>
+                </div>
+                <div class="project-photo-card glass-panel" data-tilt>
+                    <div class="project-photo-img" style="background-image:url('assets/project-secondlife-detail.jpg')"></div>
+                    <div class="project-photo-overlay">
+                        <span class="tag-primary">产品设计</span>
+                        <h3>第二次生命</h3>
+                        <p>可降解花盆包装</p>
+                        <div class="project-photo-awards">
+                            <span>泰隆杯银奖</span><span>DOA二等奖</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-photo-card glass-panel" data-tilt>
+                    <div class="project-photo-img" style="background-image:url('assets/project-maigua-detail.jpg')"></div>
+                    <div class="project-photo-overlay">
+                        <span class="tag-primary">产品设计</span>
+                        <h3>变卦</h3>
+                        <p>儿童益智棋</p>
+                        <div class="project-photo-awards">
+                            <span>教育装备展银奖</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-photo-card glass-panel" data-tilt>
+                    <div class="project-photo-img" style="background-image:url('assets/project-drone-detail.jpg')"></div>
+                    <div class="project-photo-overlay">
+                        <span class="tag-primary">产品设计</span>
+                        <h3>穿隧蜂</h3>
+                        <p>智能植保无人机</p>
+                    </div>
+                </div>
             </div>
 
-            <!-- 项目列表补充信息 -->
+            <!-- 项目文字信息 -->
             <div class="projects-detail-row">
                 <div class="projects-detail-grid">
                     <div class="glass-panel project-detail-card" data-tilt>
@@ -512,7 +555,6 @@
     <script src="assets/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <script src="assets/ogl.min.js"></script>
-    <script src="circular-gallery.js"></script>
     <script src="liquid-ether.js"></script>
     <script src="splash-liquid.js"></script>
     <script src="script.js"></script>
