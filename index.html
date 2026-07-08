@@ -167,7 +167,11 @@
 
             <!-- 向下滚动提示 -->
             <div class="hero-scroll-hint" aria-hidden="true">
-                <div class="scroll-line"></div>
+                <div class="scroll-arrow">
+                    <svg width="20" height="28" viewBox="0 0 20 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 2V22M10 22L3 15M10 22L17 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
                 <span>Scroll</span>
             </div>
         </section>
@@ -375,77 +379,64 @@
             </div>
             <div class="projects-grid">
 
-                <!-- 项目1：竹构美好 — 特色大卡片 -->
-                <article class="glass-panel project-card project-featured" data-tilt>
-                    <div class="project-img-wrap">
-                        <img src="assets/project-bamboo-service.jpg" alt="竹构美好" loading="lazy">
-                        <div class="project-img-overlay">
-                            <span class="project-year">2024</span>
-                        </div>
+                <!-- Bento 特色大卡 — 左列跨两行 -->
+                <article class="glass-panel bento-featured" data-tilt>
+                    <div class="bento-featured-img">
+                        <img src="assets/project-bamboo-overview.jpg" alt="竹构美好" loading="eager">
                     </div>
-                    <div class="project-body">
+                    <div class="bento-featured-body">
                         <div class="project-tags">
                             <span class="tag-primary">服务设计</span>
                             <span>非遗数字化</span>
                             <span>UX/UI</span>
                         </div>
                         <h3>竹构美好：竹艺数智服务系统</h3>
-                        <p>围绕传统竹艺的数字化传承与服务创新，构建资料库、云端博物馆、AI竹艺编辑器和3D智能扫描等触点，探索非遗活化的云端新生态。深入福建宁德等地调研，覆盖45+乡村，收集产品数据8356份。</p>
+                        <p>围绕传统竹艺的数字化传承与服务创新，构建资料库、云端博物馆、AI竹艺编辑器和3D智能扫描等触点，探索非遗活化的云端新生态。</p>
                         <dl class="project-meta">
                             <div><dt>角色</dt><dd>项目负责人</dd></div>
                             <div><dt>奖项</dt><dd>大广赛二等奖 · iCCA铜奖 · NCDA国奖 · RCCSE期刊收录</dd></div>
                         </dl>
-                        <div class="project-footer">
-                            <a class="project-link" href="#">查看详情 →</a>
-                        </div>
+                        <a class="project-link" href="#">查看详情 →</a>
                     </div>
                 </article>
 
-                <!-- 项目2 -->
-                <article class="glass-panel project-card" data-tilt>
-                    <div class="project-img-wrap">
+                <!-- 右列 3 个小卡 -->
+                <article class="glass-panel bento-small" data-tilt>
+                    <div class="bento-small-img">
                         <img src="assets/project-secondlife-detail.jpg" alt="第二次生命" loading="lazy">
-                        <div class="project-img-overlay"><span class="project-year">2024</span></div>
+                        <span class="project-year">2024</span>
                     </div>
-                    <div class="project-body">
+                    <div class="bento-small-body">
                         <div class="project-tags"><span class="tag-primary">产品设计</span><span>可持续</span></div>
                         <h3>第二次生命</h3>
-                        <p>将花瓶外包装转化为可种植容器。茶叶渣、蛋壳等可堆肥材料经好氧发酵转化为花盆，实现"包装→花盆→土壤"全生命周期闭环。</p>
-                        <dl class="project-meta">
-                            <div><dt>奖项</dt><dd>泰隆杯银奖 · DOA全国二等奖</dd></div>
-                        </dl>
+                        <p>将花瓶外包装转化为可种植容器，实现"包装→花盆→土壤"全生命周期闭环。</p>
+                        <span class="bento-small-award">泰隆杯银奖 · DOA全国二等奖</span>
                     </div>
                 </article>
 
-                <!-- 项目3 -->
-                <article class="glass-panel project-card" data-tilt>
-                    <div class="project-img-wrap">
+                <article class="glass-panel bento-small" data-tilt>
+                    <div class="bento-small-img">
                         <img src="assets/project-maigua-detail.jpg" alt="变卦" loading="lazy">
-                        <div class="project-img-overlay"><span class="project-year">2024</span></div>
+                        <span class="project-year">2024</span>
                     </div>
-                    <div class="project-body">
+                    <div class="bento-small-body">
                         <div class="project-tags"><span class="tag-primary">产品设计</span><span>NFC</span><span>教育</span></div>
                         <h3>变卦 — 儿童易经教育棋</h3>
-                        <p>以周易文化为灵感，结合亲子共学与NFC交互，将传统文化转化为可操作、可陪伴的儿童学习体验。</p>
-                        <dl class="project-meta">
-                            <div><dt>奖项</dt><dd>教育装备展银奖 · DOA三等奖</dd></div>
-                        </dl>
+                        <p>以周易文化为灵感，结合NFC交互，将传统文化转化为儿童可操作的学习体验。</p>
+                        <span class="bento-small-award">教育装备展银奖 · DOA三等奖</span>
                     </div>
                 </article>
 
-                <!-- 项目4 -->
-                <article class="glass-panel project-card" data-tilt>
-                    <div class="project-img-wrap">
-                        <img src="assets/project-drone-detail.jpg" alt="穿隧蜂" loading="lazy">
-                        <div class="project-img-overlay"><span class="project-year">2023</span></div>
+                <article class="glass-panel bento-small bento-small-tall" data-tilt>
+                    <div class="bento-small-img">
+                        <img src="assets/project-drone-service.jpg" alt="穿隧蜂" loading="lazy">
+                        <span class="project-year">2023</span>
                     </div>
-                    <div class="project-body">
+                    <div class="bento-small-body">
                         <div class="project-tags"><span class="tag-primary">产品设计</span><span>智能交互</span></div>
                         <h3>穿隧蜂 — 炮射无人机</h3>
-                        <p>面向农业植保与多场景应用，提出可折叠炮射无人机与集群反射平台方案，突破地形限制。</p>
-                        <dl class="project-meta">
-                            <div><dt>奖项</dt><dd>挑战杯校级奖</dd></div>
-                        </dl>
+                        <p>面向农业植保与多场景应用，可折叠炮射无人机与集群反射平台方案。</p>
+                        <span class="bento-small-award">挑战杯校级奖</span>
                     </div>
                 </article>
 

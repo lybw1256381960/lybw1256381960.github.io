@@ -563,6 +563,227 @@ h1, h2, h3, h4, h5 { font-family: var(--font-display); line-height: 1.15; font-w
   gap: 14px;
 }
 
+/* ── 9b. Hero 3D Title Parallax ─────────────────────────────────── */
+.hero-section {
+  perspective: 1200px;
+  perspective-origin: 50% 45%;
+}
+
+.hero-copy {
+  transform-style: preserve-3d;
+  transition: transform 0.12s ease-out;
+}
+
+.hero-title {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* ── 9c. Hero Scroll Arrow ────────────────────────────────────── */
+/* (defined in hero-scroll-hint block above) */
+
+/* ── 9d. Shared Project Tag Styles ─────────────────────────────── */
+.project-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.project-tags span {
+  padding: 3px 10px;
+  background: rgba(0, 180, 160, 0.08);
+  border: 1px solid rgba(0, 180, 160, 0.22);
+  border-radius: var(--r-full);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--primary-dark);
+}
+
+.tag-primary {
+  background: var(--grad-soft) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+}
+
+.bento-featured-body .project-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bento-featured-body .project-meta > div {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.bento-featured-body .project-meta dt {
+  font-weight: 700;
+  color: var(--text-muted);
+  min-width: 36px;
+  flex-shrink: 0;
+}
+
+.bento-featured-body .project-meta dd {
+  color: var(--text-soft);
+}
+
+.project-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary-dark);
+  text-decoration: none;
+  padding: 8px 0;
+  border-bottom: 1.5px solid rgba(0, 140, 115, 0.25);
+  transition: color 0.25s, border-color 0.25s, gap 0.25s;
+  width: fit-content;
+}
+
+.project-link:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+  gap: 10px;
+}
+
+/* ── 10. Projects Bento Grid ───────────────────────────────────── */
+.projects-grid {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 18px;
+  align-items: start;
+  margin-bottom: var(--space-2xl);
+}
+
+/* 特色大卡 — 左列，跨两行 */
+.bento-featured {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--r-xl);
+  transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease);
+}
+
+.bento-featured:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: var(--glass-shadow-hover);
+}
+
+.bento-featured-img {
+  position: relative;
+  aspect-ratio: 4/3;
+  overflow: hidden;
+}
+
+.bento-featured-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s var(--ease);
+}
+
+.bento-featured:hover .bento-featured-img img {
+  transform: scale(1.06);
+}
+
+.bento-featured-body {
+  padding: 24px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bento-featured-body h3 {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.bento-featured-body p {
+  font-size: 13.5px;
+  color: var(--text-soft);
+  line-height: 1.75;
+}
+
+/* 右列小卡 */
+.bento-small {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--r-lg);
+  transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease);
+}
+
+.bento-small:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--glass-shadow-hover);
+}
+
+.bento-small-img {
+  position: relative;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+}
+
+.bento-small-tall .bento-small-img {
+  aspect-ratio: 4/3;
+}
+
+.bento-small-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s var(--ease);
+}
+
+.bento-small:hover .bento-small-img img {
+  transform: scale(1.06);
+}
+
+.bento-small-img .project-year {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 100, 90, 0.65);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  border-radius: 99px;
+  backdrop-filter: blur(8px);
+}
+
+.bento-small-body {
+  padding: 16px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bento-small-body h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.bento-small-body p {
+  font-size: 12px;
+  color: var(--text-soft);
+  line-height: 1.65;
+}
+
+.bento-small-award {
+  font-size: 10.5px;
+  color: var(--primary-dark);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin-top: 2px;
+}
+
 .bento-card { cursor: default; }
 
 .bento-main {
@@ -660,24 +881,29 @@ h1, h2, h3, h4, h5 { font-family: var(--font-display); line-height: 1.15; font-w
 /* ── 10. Hero Scroll Hint ───────────────────────────────────────── */
 .hero-scroll-hint {
   position: absolute;
-  bottom: 32px;
+  bottom: 28px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   color: var(--text-muted);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
-.scroll-line {
-  width: 1px;
-  height: 40px;
-  background: linear-gradient(to bottom, var(--primary), transparent);
-  animation: scrollLine 2s ease-in-out infinite;
+.scroll-arrow {
+  color: var(--primary);
+  animation: scrollBounce 2s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes scrollBounce {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50%       { transform: translateY(7px); opacity: 1; }
 }
 
 @keyframes scrollLine {
@@ -1008,85 +1234,7 @@ h1, h2, h3, h4, h5 { font-family: var(--font-display); line-height: 1.15; font-w
 }
 
 /* ── 17. Projects ──────────────────────────────────────────────── */
-.projects-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-bottom: var(--space-2xl);
-}
 
-.project-featured {
-  grid-column: 1 / -1;
-}
-
-.project-card {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  cursor: default;
-}
-
-.project-img-wrap {
-  position: relative;
-  aspect-ratio: 16/9;
-  overflow: hidden;
-}
-
-.project-featured .project-img-wrap { aspect-ratio: 21/9; }
-
-.project-img-wrap img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.6s var(--ease);
-}
-
-.project-card:hover .project-img-wrap img { transform: scale(1.06); }
-
-.project-img-overlay {
-  position: absolute;
-  top: 12px; right: 12px;
-}
-
-.project-year {
-  padding: 4px 10px;
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(8px);
-  border-radius: var(--r-full);
-  font-size: 11px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.9);
-  letter-spacing: 0.05em;
-}
-
-.project-body {
-  padding: 22px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  flex: 1;
-}
-
-.project-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-
-.project-tags span {
-  padding: 3px 10px;
-  background: rgba(0, 180, 160, 0.08);
-  border: 1px solid rgba(0, 180, 160, 0.2);
-  border-radius: var(--r-full);
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--primary-dark);
-}
-
-.tag-primary {
-  background: var(--grad-soft) !important;
-  color: #fff !important;
-  border-color: transparent !important;
-}
-
-.project-card h3 { font-size: 18px; font-weight: 700; color: var(--text); }
-.project-card p { font-size: 13.5px; color: var(--text-soft); line-height: 1.7; }
 
 .project-meta {
   display: flex;

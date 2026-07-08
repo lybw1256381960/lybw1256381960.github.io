@@ -243,6 +243,55 @@
     }, { passive: true });
   }
 
+  /* ── 9b. Hero Title 3D Mouse Parallax ─────────────────────── */
+  function initHeroTitleParallax() {
+    const hero = $('.hero-section');
+    const copy = $('.hero-copy');
+    const title = $('.hero-title');
+    if (!hero || !copy) return;
+
+    let ticking = false;
+
+    hero.addEventListener('mousemove', (e) => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const rect = hero.getBoundingClientRect();
+        const cx = (e.clientX - rect.left) / rect.width  - 0.5;  // -0.5 to 0.5
+        const cy = (e.clientY - rect.top)  / rect.height - 0.5;
+
+        // hero-copy: subtle X/Y drift
+        gsap.to(copy, {
+          x: cx * -18,
+          y: cy * -12,
+          duration: 1.2,
+          ease: 'power2.out'
+        });
+
+        // hero-title: slight Z-rotation + deeper drift for depth
+        if (title) {
+          gsap.to(title, {
+            x: cx * -10,
+            y: cy * -6,
+            rotateY: cx * 6,
+            rotateX: -cy * 4,
+            duration: 1.0,
+            ease: 'power2.out'
+          });
+        }
+
+        ticking = false;
+      });
+    });
+
+    hero.addEventListener('mouseleave', () => {
+      gsap.to(copy,  { x: 0, y: 0, duration: 1.4, ease: 'elastic.out(1, 0.5)' });
+      if (title) {
+        gsap.to(title, { x: 0, y: 0, rotateY: 0, rotateX: 0, duration: 1.4, ease: 'elastic.out(1, 0.5)' });
+      }
+    });
+  }
+
   /* ── 10. Gallery Drag Scroll ───────────────────────────────── */
   function initGallery() {
     const track = $('.circular-track');
@@ -383,6 +432,7 @@
     initReveal();
     initTilt();
     initHeroParallax();
+    initHeroTitleParallax();
     initGallery();
     initToolBars();
     initContactForm();
