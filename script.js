@@ -1,432 +1,396 @@
-/* ═══════════════════════════════════════════════════════════════════
-   林韦婧个人主页 — GSAP 交互系统 v2
-   包含: 开屏动画 | BorderGlow | CircularGallery | ScrollTrigger
-   ═══════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════════
+   林韦婧个人主页 — script.js v3
+   GSAP ScrollTrigger + Splash Liquid + 丰富交互动效
+   ═══════════════════════════════════════════════════════════════════════ */
 
 (function () {
-    'use strict';
+  'use strict';
 
-    const { gsap } = window;
-    const { ScrollTrigger } = window;
+  /* ── Helpers ─────────────────────────────────────────────────── */
+  const $ = (sel, ctx) => (ctx || document).querySelector(sel);
+  const $$ = (sel, ctx) => [...(ctx || document).querySelectorAll(sel)];
+  const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
+  const lerp = (a, b, t) => a + (b - a) * t;
 
-    // Register GSAP plugins
-    if (typeof ScrollTrigger !== 'undefined') {
-        gsap.registerPlugin(ScrollTrigger);
+  /* ── 1. GSAP Init ──────────────────────────────────────────── */
+  function initGSAP() {
+    if (typeof gsap === 'undefined') return;
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Smooth scroll behavior
+    ScrollTrigger.normalizeScroll(true);
+
+    // Refresh on load
+    window.addEventListener('load', () => {
+      ScrollTrigger.refresh();
+    });
+  }
+
+  /* ── 2. Splash Screen ──────────────────────────────────────── */
+  function initSplash() {
+    const splash = $('#splash');
+    const progress = $('#splash-progress');
+    if (!splash) return;
+
+    let splashLiquid;
+
+    // Init splash liquid
+    try {
+      if (typeof SplashLiquid !== 'undefined') {
+        splashLiquid = new SplashLiquid('splash-canvas');
+        splashLiquid.start();
+      }
+    } catch (e) {
+      console.warn('SplashLiquid init failed:', e);
     }
 
-    /* ─── 0. Splash Screen ─────────────────────────────────────── */
-    (function splashScreen() {
-        const splash = document.getElementById('splash-screen');
-        if (!splash) return;
+    // Timeline
+    const tl = gsap.timeline({
+      onComplete: () => {
+        // Fade out splash
+        gsap.to(splash, {
+          opacity: 0,
+          duration: 0.9,
+          ease: 'power2.inOut',
+          onComplete: () => {
+            splash.style.display = 'none';
+            splash.setAttribute('aria-hidden', 'true');
+            if (splashLiquid) splashLiquid.stop();
+            // Init main page liquid ether
+            initMainLiquid();
+          }
+        });
+      }
+    });
 
-        // Wait for fonts to settle, then reveal page
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                gsap.to(splash, {
-                    opacity: 0,
-                    duration: 0.85,
-                    ease: 'power2.inOut',
-                    onComplete: () => {
-                        splash.style.display = 'none';
-                        splash.style.pointerEvents = 'none';
-                        // Kick off page entrance
-                        initPageEntrance();
-                    }
-                });
-            }, 1800); // splash visible for 1.8s
-        });
-    })();
+    // Wait for progress bar to complete + a bit extra
+    tl.to({}, { duration: 2.8 });
 
-    /* ─── 1. Page Entrance (GSAP) ─────────────────────────────── */
-    function initPageEntrance() {
-        // Hero elements stagger in
-        gsap.from('.eyebrow', {
-            opacity: 0, y: 20, duration: 0.7, ease: 'power3.out', delay: 0.1
-        });
-        gsap.from('.hero h1', {
-            opacity: 0, y: 32, duration: 0.85, ease: 'power3.out', delay: 0.2
-        });
-        gsap.from('.hero-subtitle', {
-            opacity: 0, y: 22, duration: 0.7, ease: 'power3.out', delay: 0.38
-        });
-        gsap.from('.hero-lead', {
-            opacity: 0, y: 18, duration: 0.7, ease: 'power3.out', delay: 0.50
-        });
-        gsap.from('.hero-actions', {
-            opacity: 0, y: 16, duration: 0.65, ease: 'power3.out', delay: 0.62
-        });
-        gsap.from('.hero-visual', {
-            opacity: 0, x: 30, duration: 0.9, ease: 'power3.out', delay: 0.28
-        });
-        gsap.from('.signal-strip .signal-card', {
-            opacity: 0, y: 24, duration: 0.65, stagger: 0.1, ease: 'power3.out', delay: 0.75
-        });
+    // Mouse interaction on splash canvas
+    if (splashLiquid) {
+      splash.addEventListener('mousemove', (e) => {
+        splashLiquid.splatEvent(e);
+      });
     }
 
-    /* ─── 2. Header State ───────────────────────────────────────── */
-    (function headerState() {
-        const header = document.querySelector('[data-header]');
-        if (!header) return;
-        const setState = () => header.classList.toggle('is-scrolled', window.scrollY > 12);
-        setState();
-        window.addEventListener('scroll', setState, { passive: true });
-    })();
+    // Animate progress bar
+    if (progress) {
+      gsap.fromTo(progress,
+        { scaleX: 0 },
+        { scaleX: 1, duration: 2.6, ease: 'power2.inOut', delay: 0.1 }
+      );
+    }
+  }
 
-    /* ─── 3. Mobile Nav ────────────────────────────────────────── */
-    (function mobileNav() {
-        const toggle  = document.querySelector('[data-nav-toggle]');
-        const links   = document.querySelector('[data-nav-links]');
-        const items   = Array.from(document.querySelectorAll('.nav-links a'));
+  /* ── 3. Main Liquid Ether ──────────────────────────────────── */
+  // liquid-ether.js auto-initializes via IIFE — no manual call needed.
+  // Mouse splat is handled by liquid-ether.js internally.
+  function initMainLiquid() {
+    // Already running from liquid-ether.js IIFE
+  }
 
-        if (!toggle || !links) return;
+  /* ── 4. Header Scroll ─────────────────────────────────────── */
+  function initHeader() {
+    const header = $('[data-header]');
+    if (!header) return;
 
-        const close = () => {
-            toggle.setAttribute('aria-expanded', 'false');
-            links.classList.remove('is-open');
-        };
-        const open  = () => {
-            toggle.setAttribute('aria-expanded', 'true');
-            links.classList.add('is-open');
-        };
+    const onScroll = () => {
+      header.classList.toggle('is-scrolled', window.scrollY > 40);
+    };
 
-        toggle.addEventListener('click', () =>
-            toggle.getAttribute('aria-expanded') === 'true' ? close() : open()
-        );
-        items.forEach(l => l.addEventListener('click', close));
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
-        document.addEventListener('click', e => {
-            if (!links.contains(e.target) && !toggle.contains(e.target)) close();
-        });
-    })();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
 
-    /* ─── 4. GSAP ScrollTrigger Reveal ─────────────────────────── */
-    (function gsapReveal() {
-        if (typeof ScrollTrigger === 'undefined') return;
+    // Active nav link
+    const navLinks = $$('.nav-links a');
+    const sections = $$('section[id]');
 
-        // Section headings
-        gsap.utils.toArray('.section-heading').forEach(heading => {
-            gsap.from(heading, {
-                opacity: 0, y: 36, duration: 0.8, ease: 'power3.out',
-                scrollTrigger: {
-                    trigger: heading,
-                    start: 'top 88%',
-                    once: true,
-                }
-            });
-        });
-
-        // Cards stagger
-        const cardGroups = [
-            { sel: '.about-grid .about-story', stagger: 0.12 },
-            { sel: '.focus-list .focus-item', stagger: 0.08 },
-            { sel: '.timeline .timeline-card', stagger: 0.12 },
-            { sel: '.experience-grid .experience-card', stagger: 0.12 },
-            { sel: '.skills-grid .skill-card', stagger: 0.09 },
-            { sel: '.projects-grid .project-card', stagger: 0.12 },
-            { sel: '.award-list .award-card', stagger: 0.07 },
-            { sel: '.contact-panel', stagger: 0 },
-            { sel: '.contact-form', stagger: 0 },
-        ];
-
-        cardGroups.forEach(({ sel, stagger }) => {
-            gsap.from(sel, {
-                opacity: 0, y: 28, duration: 0.72, stagger, ease: 'power3.out',
-                scrollTrigger: {
-                    trigger: sel,
-                    start: 'top 90%',
-                    once: true,
-                }
-            });
-        });
-
-        // Hero parallax on scroll
-        const heroVisual = document.querySelector('.hero-visual');
-        if (heroVisual) {
-            gsap.to(heroVisual, {
-                y: -40,
-                ease: 'none',
-                scrollTrigger: {
-                    trigger: '.hero',
-                    start: 'top top',
-                    end: 'bottom top',
-                    scrub: 1.2,
-                }
-            });
+    const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinks.forEach(a => a.classList.remove('is-active'));
+          const active = $(`.nav-links a[href="#${entry.target.id}"]`);
+          if (active) active.classList.add('is-active');
         }
+      });
+    }, { threshold: 0.3, rootMargin: '-64px 0px 0px 0px' });
 
-        // Section headings — subtle underline draw
-        gsap.utils.toArray('.section-heading h2').forEach(h2 => {
-            gsap.from(h2, {
-                opacity: 0.4,
-                duration: 1.2,
-                ease: 'power2.out',
-                scrollTrigger: {
-                    trigger: h2,
-                    start: 'top 85%',
-                    once: true,
-                }
-            });
+    sections.forEach(s => sectionObserver.observe(s));
+  }
+
+  /* ── 5. Nav Toggle (mobile) ────────────────────────────────── */
+  function initNavToggle() {
+    const toggle = $('[data-nav-toggle]');
+    const links  = $('[data-nav-links]');
+    if (!toggle || !links) return;
+
+    toggle.addEventListener('click', () => {
+      const isOpen = links.classList.toggle('is-open');
+      toggle.setAttribute('aria-expanded', isOpen);
+    });
+
+    // Close on link click
+    links.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        links.classList.remove('is-open');
+        toggle.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+
+  /* ── 6. Counter Animation ─────────────────────────────────── */
+  function initCounters() {
+    const counters = $$('[data-count]');
+    if (!counters.length) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        observer.unobserve(entry.target);
+
+        const el = entry.target;
+        const target = parseInt(el.dataset.count, 10);
+        const obj = { val: 0 };
+
+        gsap.to(obj, {
+          val: target,
+          duration: 1.6,
+          ease: 'power2.out',
+          onUpdate() {
+            el.textContent = Math.round(obj.val);
+          },
+          onComplete() {
+            el.textContent = target;
+          }
         });
-    })();
+      });
+    }, { threshold: 0.5 });
 
-    /* ─── 5. Mouse Tilt (GSAP-powered, smooth) ─────────────────── */
-    (function mouseTilt() {
-        const tiltEls = document.querySelectorAll('[data-tilt]');
-        if (!tiltEls.length) return;
+    counters.forEach(c => observer.observe(c));
+  }
 
-        let activeEl = null;
+  /* ── 7. IntersectionObserver Reveals ───────────────────────── */
+  function initReveal() {
+    const targets = $$('.section, .timeline-card, .project-card, .experience-card, .skill-card, .award-card, .contact-card, .about-story, .focus-item');
 
-        document.addEventListener('mousemove', e => {
-            tiltEls.forEach(el => {
-                const r = el.getBoundingClientRect();
-                const inBounds =
-                    e.clientX >= r.left - 30 && e.clientX <= r.right + 30 &&
-                    e.clientY >= r.top  - 30 && e.clientY <= r.bottom + 30;
-
-                if (inBounds) {
-                    const x = e.clientX - r.left;
-                    const y = e.clientY - r.top;
-                    const cx = r.width / 2;
-                    const cy = r.height / 2;
-
-                    const rotX = ((y - cy) / cy) * -4.5;
-                    const rotY = ((x - cx) / cx) *  4.5;
-
-                    gsap.to(el, {
-                        rotateX: rotX, rotateY: rotY,
-                        duration: 0.55, ease: 'power2.out',
-                        transformPerspective: 900,
-                        overwrite: 'auto'
-                    });
-
-                    // Update CSS var for glow spot
-                    const mx = (x / r.width)  * 100;
-                    const my = (y / r.height) * 100;
-                    el.style.setProperty('--mx', mx + '%');
-                    el.style.setProperty('--my', my + '%');
-
-                    activeEl = el;
-                } else if (el === activeEl) {
-                    gsap.to(el, {
-                        rotateX: 0, rotateY: 0,
-                        duration: 0.7, ease: 'power2.out',
-                        overwrite: 'auto'
-                    });
-                    activeEl = null;
-                }
-            });
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        io.unobserve(entry.target);
+        entry.target.classList.add('fade-in-up');
+        requestAnimationFrame(() => {
+          entry.target.classList.add('is-visible');
         });
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
 
-        document.addEventListener('mouseleave', () => {
-            if (activeEl) {
-                gsap.to(activeEl, {
-                    rotateX: 0, rotateY: 0,
-                    duration: 0.7, ease: 'power2.out'
-                });
-                activeEl = null;
-            }
+    targets.forEach((el, i) => {
+      el.style.transitionDelay = `${(i % 4) * 0.07}s`;
+      io.observe(el);
+    });
+  }
+
+  /* ── 8. Card Tilt 3D ──────────────────────────────────────── */
+  function initTilt() {
+    const cards = $$('[data-tilt]');
+    if (!cards.length) return;
+
+    cards.forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const cx = (e.clientX - rect.left) / rect.width  * 100;
+        const cy = (e.clientY - rect.top)  / rect.height * 100;
+
+        // CSS glow
+        card.style.setProperty('--glow-x', `${cx}%`);
+        card.style.setProperty('--glow-y', `${cy}%`);
+        card.style.setProperty('--glow-opacity', '1');
+
+        // 3D tilt
+        const dx = (cx - 50) / 50;   // -1 to 1
+        const dy = (cy - 50) / 50;   // -1 to 1
+        gsap.to(card, {
+          rotateY: dx * 6,
+          rotateX: -dy * 4,
+          duration: 0.5,
+          ease: 'power2.out',
+          overwrite: 'auto'
         });
-    })();
+      });
 
-    /* ─── 6. BorderGlow — Mouse-follow glow on project cards ───── */
-    (function borderGlow() {
-        const cards = document.querySelectorAll('.project-card');
-        if (!cards.length) return;
-
-        cards.forEach(card => {
-            card.addEventListener('mousemove', e => {
-                const r = card.getBoundingClientRect();
-                const x = ((e.clientX - r.left) / r.width)  * 100;
-                const y = ((e.clientY - r.top)  / r.height) * 100;
-                card.style.setProperty('--glow-x', x + '%');
-                card.style.setProperty('--glow-y', y + '%');
-                card.style.setProperty('--glow-opacity', '1');
-            });
-            card.addEventListener('mouseleave', () => {
-                card.style.setProperty('--glow-opacity', '0');
-            });
+      card.addEventListener('mouseleave', () => {
+        card.style.setProperty('--glow-opacity', '0');
+        gsap.to(card, {
+          rotateY: 0, rotateX: 0,
+          duration: 0.7,
+          ease: 'elastic.out(1, 0.5)',
+          overwrite: 'auto'
         });
-    })();
+      });
+    });
+  }
 
-    /* ─── 7. CircularGallery — GSAP Horizontal Scroll ──────────── */
-    (function circularGallery() {
-        const track = document.querySelector('.circular-track');
-        if (!track) return;
+  /* ── 9. Hero Parallax ─────────────────────────────────────── */
+  function initHeroParallax() {
+    const blobs = $$('.hero-blob');
+    if (!blobs.length) return;
 
-        const items = Array.from(track.querySelectorAll('.circular-item'));
-        if (items.length === 0) return;
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      blobs.forEach((b, i) => {
+        gsap.set(b, { y: y * (0.15 + i * 0.08) });
+      });
+    }, { passive: true });
+  }
 
-        // Initialise each item with a vertical offset for the arc effect
-        function layoutArc() {
-            const vw = window.innerWidth;
-            const count = items.length;
-            const spacing = 20; // gap in px
-            // Arc params
-            const bendFactor = Math.min(vw / 900, 1) * 12; // arc depth in px
-            const totalW = items.reduce((s, el) => {
-                return s + el.offsetWidth + spacing;
-            }, -spacing);
+  /* ── 10. Gallery Drag Scroll ───────────────────────────────── */
+  function initGallery() {
+    const track = $('.circular-track');
+    const wrap  = $('.gallery-scroll-wrap');
+    if (!track || !wrap) return;
 
-            track.style.width = totalW + 'px';
+    let isDown = false;
+    let startX = 0;
+    let scrollLeft = 0;
 
-            const centerX = vw / 2;
-            const startX  = (vw - totalW) / 2;
+    track.addEventListener('mousedown', (e) => {
+      isDown = true;
+      track.style.cursor = 'grabbing';
+      startX = e.pageX - wrap.offsetLeft;
+      scrollLeft = wrap.scrollLeft;
+    });
 
-            items.forEach((el, i) => {
-                const elCenterX = startX + el.offsetWidth / 2 + i * (el.offsetWidth + spacing);
-                const dx = elCenterX - centerX; // distance from center
-                const progress = dx / (totalW / 2 || 1); // -1 to +1
-                const arcY = -bendFactor * (1 - progress * progress); // parabola
-                const rotZ = progress * 4; // slight rotation toward edges
+    document.addEventListener('mouseup', () => {
+      isDown = false;
+      track.style.cursor = 'grab';
+    });
 
-                el.style.transform = `translateY(${arcY}px) rotateZ(${rotZ}deg)`;
-                el.style.transition = 'transform 0.12s ease-out';
-            });
-        }
+    document.addEventListener('mousemove', (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - wrap.offsetLeft;
+      const walk = (x - startX) * 1.5;
+      wrap.scrollLeft = scrollLeft - walk;
+    });
 
-        // Draggable horizontal scroll
-        let isDragging = false;
-        let startX = 0;
-        let scrollLeft = 0;
+    // Touch support
+    track.addEventListener('touchstart', (e) => {
+      startX = e.touches[0].pageX - wrap.offsetLeft;
+      scrollLeft = wrap.scrollLeft;
+    }, { passive: true });
 
-        track.addEventListener('mousedown', e => {
-            isDragging = true;
-            startX = e.pageX - track.offsetLeft;
-            scrollLeft = track.parentElement.scrollLeft || 0;
-            track.style.cursor = 'grabbing';
+    track.addEventListener('touchmove', (e) => {
+      const x = e.touches[0].pageX - wrap.offsetLeft;
+      const walk = (x - startX) * 1.5;
+      wrap.scrollLeft = scrollLeft - walk;
+    }, { passive: true });
+  }
+
+  /* ── 11. Tool Bar Animations ──────────────────────────────── */
+  function initToolBars() {
+    const fills = $$('.tool-fill');
+    if (!fills.length) return;
+
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        io.unobserve(entry.target);
+        const w = entry.target.style.getPropertyValue('--w');
+        entry.target.style.setProperty('--w', '0%');
+        requestAnimationFrame(() => {
+          entry.target.style.transition = 'width 1.2s cubic-bezier(0.16,1,0.3,1)';
+          entry.target.style.setProperty('--w', w);
         });
+      });
+    }, { threshold: 0.5 });
 
-        window.addEventListener('mousemove', e => {
-            if (!isDragging) return;
-            e.preventDefault();
-            const x = e.pageX - track.offsetLeft;
-            const walk = (x - startX) * 1.5;
-            track.parentElement.scrollLeft = scrollLeft - walk;
-        });
+    fills.forEach(f => io.observe(f));
+  }
 
-        window.addEventListener('mouseup', () => {
-            isDragging = false;
-            track.style.cursor = 'grab';
-        });
+  /* ── 12. Contact Form ─────────────────────────────────────── */
+  function initContactForm() {
+    const form = $('#contact-form');
+    if (!form) return;
 
-        // Touch support
-        track.addEventListener('touchstart', e => {
-            startX = e.touches[0].pageX - track.offsetLeft;
-            scrollLeft = track.parentElement.scrollLeft || 0;
-        }, { passive: true });
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const data = new FormData(form);
+      const name = form.querySelector('#cf-name')?.value?.trim();
+      const email = form.querySelector('#cf-email')?.value?.trim();
+      const msg = form.querySelector('#cf-message')?.value?.trim();
 
-        track.addEventListener('touchmove', e => {
-            const x = e.touches[0].pageX - track.offsetLeft;
-            const walk = (x - startX) * 1.5;
-            track.parentElement.scrollLeft = scrollLeft - walk;
-        }, { passive: true });
+      if (!name || !email || !msg) {
+        shakeForm(form);
+        return;
+      }
 
-        // Scroll-driven: when user scrolls page, gallery items react
-        // Using IntersectionObserver to activate/deactivate items
-        const io = new IntersectionObserver(entries => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = entry.target.dataset.arcTransform || '';
-                } else {
-                    entry.target.style.opacity = '0.6';
-                }
-            });
-        }, { threshold: 0.2 });
+      const btn = form.querySelector('button[type=submit]');
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<span>已发送 ✦</span>';
+      btn.disabled = true;
+      btn.style.background = 'var(--grad-soft)';
 
-        items.forEach((el, i) => {
-            // Save computed arc transform
-            layoutArc();
-            el.dataset.arcTransform = el.style.transform;
-            el.style.transition = 'opacity 0.4s ease, transform 0.12s ease';
-            io.observe(el);
-        });
+      setTimeout(() => {
+        form.reset();
+        btn.innerHTML = orig;
+        btn.disabled = false;
+      }, 3000);
+    });
+  }
 
-        // Re-layout on resize
-        let resizeTimer;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(layoutArc, 120);
-        });
+  function shakeForm(form) {
+    gsap.to(form, {
+      x: [-6, 6, -4, 4, -2, 2, 0],
+      duration: 0.4,
+      ease: 'none'
+    });
+  }
 
-        // Auto-rotate on idle (subtle)
-        let autoRotateId = null;
-        let autoRotatePaused = false;
+  /* ── 13. Year auto-update ──────────────────────────────────── */
+  function initYear() {
+    const el = $('[data-year]');
+    if (el) el.textContent = new Date().getFullYear();
+  }
 
-        function startAutoRotate() {
-            if (autoRotateId) return;
-            const parent = track.parentElement;
-            const maxScroll = parent.scrollWidth - parent.clientWidth;
-            if (maxScroll <= 0) return;
+  /* ── 14. Scroll Progress Bar ──────────────────────────────── */
+  function initScrollProgress() {
+    const bar = document.createElement('div');
+    bar.id = 'scroll-progress';
+    Object.assign(bar.style, {
+      position: 'fixed',
+      top: '0', left: '0',
+      height: '3px',
+      background: 'var(--grad-soft)',
+      width: '0%',
+      zIndex: '9998',
+      transition: 'width 0.05s linear',
+      borderRadius: '0 2px 2px 0',
+    });
+    document.body.appendChild(bar);
 
-            let direction = 1;
-            autoRotateId = setInterval(() => {
-                if (autoRotatePaused || isDragging) return;
-                parent.scrollLeft += direction * 0.6;
-                if (parent.scrollLeft >= maxScroll) direction = -1;
-                if (parent.scrollLeft <= 0) direction = 1;
-            }, 16);
-        }
+    window.addEventListener('scroll', () => {
+      const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+      bar.style.width = `${clamp(pct, 0, 100)}%`;
+    }, { passive: true });
+  }
 
-        track.addEventListener('mouseenter', () => { autoRotatePaused = true; });
-        track.addEventListener('mouseleave', () => { autoRotatePaused = false; });
+  /* ── Init ──────────────────────────────────────────────────── */
+  document.addEventListener('DOMContentLoaded', () => {
+    initGSAP();
+    initHeader();
+    initNavToggle();
+    initCounters();
+    initReveal();
+    initTilt();
+    initHeroParallax();
+    initGallery();
+    initToolBars();
+    initContactForm();
+    initYear();
+    initScrollProgress();
 
-        // Kick off auto-rotate after 5s idle
-        setTimeout(startAutoRotate, 5000);
-    })();
-
-    /* ─── 8. Smooth Anchor Scroll ──────────────────────────────── */
-    (function smoothAnchors() {
-        document.querySelectorAll('a[href^="#"]').forEach(a => {
-            a.addEventListener('click', e => {
-                const t = document.querySelector(a.getAttribute('href'));
-                if (t) {
-                    e.preventDefault();
-                    t.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            });
-        });
-    })();
-
-    /* ─── 9. Active Nav — IntersectionObserver ─────────────────── */
-    (function activeNav() {
-        const sections = Array.from(document.querySelectorAll('section[id]'));
-        const navItems  = Array.from(document.querySelectorAll('.nav-links a'));
-        if (!sections.length || !navItems.length) return;
-
-        const io = new IntersectionObserver(entries => {
-            entries.forEach(entry => {
-                if (!entry.isIntersecting) return;
-                navItems.forEach(l => {
-                    l.classList.toggle('is-active',
-                        l.getAttribute('href') === `#${entry.target.id}`
-                    );
-                });
-            });
-        }, { threshold: 0.25, rootMargin: '-18% 0px -50% 0px' });
-
-        sections.forEach(s => io.observe(s));
-    })();
-
-    /* ─── 10. Contact Form ──────────────────────────────────────── */
-    (function contactForm() {
-        const form = document.getElementById('contact-form');
-        if (!form) return;
-        form.addEventListener('submit', e => {
-            e.preventDefault();
-            const fd  = new FormData(form);
-            const s   = encodeURIComponent(`来自林韦婧个人主页的交流邀请：${fd.get('name').trim()}`);
-            const b   = encodeURIComponent(
-                `姓名：${fd.get('name').trim()}\n邮箱：${fd.get('email').trim()}\n\n${fd.get('message').trim()}`
-            );
-            window.location.href = `mailto:1256381960@qq.com?subject=${s}&body=${b}`;
-        });
-    })();
-
-    /* ─── 11. Year ──────────────────────────────────────────────── */
-    (function setYear() {
-        const el = document.querySelector('[data-year]');
-        if (el) el.textContent = new Date().getFullYear();
-    })();
+    // Splash is always initialized
+    initSplash();
+  });
 
 })();

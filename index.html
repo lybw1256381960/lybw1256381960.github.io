@@ -14,25 +14,38 @@
     <meta property="og:locale" content="zh_CN">
     <title>林韦婧 | 服务设计与用户研究作品集</title>
     <link rel="icon" href="assets/lwj-avatar.jpg" type="image/jpeg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <script>document.documentElement.classList.add("js");</script>
+    <!-- Splash Liquid Ether — full-screen canvas overlay -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
     <a class="skip-link" href="#main">跳转到主要内容</a>
 
-    <!-- Splash Screen -->
-    <div class="splash-screen" id="splash-screen" aria-hidden="true">
-        <div>
-            <div class="splash-logo">
-                <span class="splash-letter">L</span>
-                <span class="splash-letter">W</span>
-                <span class="splash-letter">J</span>
+    <!-- ═══════════════════════════════════════════════
+         SPLASH SCREEN — Liquid Ether 开屏
+         ═══════════════════════════════════════════════ -->
+    <div class="splash" id="splash" aria-hidden="true">
+        <canvas id="splash-canvas"></canvas>
+        <div class="splash-inner">
+            <div class="splash-logo-wrap">
+                <span class="splash-char" data-char="L">L</span>
+                <span class="splash-char" data-char="W">W</span>
+                <span class="splash-char" data-char="J">J</span>
             </div>
-            <p class="splash-subtitle">Service Design · User Research</p>
+            <p class="splash-tagline">
+                <span class="splash-tagline-line">Service Design</span>
+                <span class="splash-tagline-sep">·</span>
+                <span class="splash-tagline-line">User Research</span>
+            </p>
+            <div class="splash-progress"><div class="splash-progress-bar" id="splash-progress"></div></div>
         </div>
     </div>
 
-    <!-- LiquidEther 流体背景 -->
+    <!-- LiquidEther 背景层（页面背景动效，保持不变） -->
     <canvas id="liquid-ether-canvas"></canvas>
 
     <!-- 视差弥散光斑层 -->
@@ -40,9 +53,6 @@
         <div class="orb orb-1"></div>
         <div class="orb orb-4"></div>
     </div>
-
-    <!-- 流体网格装饰层 -->
-    <div class="fluid-grid" aria-hidden="true"></div>
 
     <header class="site-header" data-header>
         <nav class="nav" aria-label="主导航">
@@ -66,97 +76,213 @@
     </header>
 
     <main id="main">
-        <section class="hero" id="top" aria-labelledby="hero-title">
-            <div class="hero-copy">
-                <p class="eyebrow">Service Design · User Research · Industrial Design Engineering</p>
-                <h1 id="hero-title">林韦婧</h1>
-                <p class="hero-subtitle">以人为本，连接研究洞察与服务创新</p>
-                <p class="hero-lead">
-                    广东工业大学工业设计工程25级研究生，研究方向为服务设计与用户研究。基于产品设计背景，我关注真实情境中的用户需求、系统触点与可持续体验，用研究、原型和跨学科协作推动设计落地。
-                </p>
-                <div class="hero-actions">
-                    <a class="btn btn-primary" href="#projects"><span>查看作品</span></a>
-                    <a class="btn btn-ghost" href="assets/lin-weijing-portfolio.pdf" target="_blank" rel="noopener noreferrer"><span>完整作品集</span></a>
+
+        <!-- ═══════════════════════════════════════════
+             HERO — 大标题 + Bento 风格卡片组合
+             ═══════════════════════════════════════════ -->
+        <section class="hero-section" id="top" aria-labelledby="hero-title">
+
+            <!-- 背景渐变blob -->
+            <div class="hero-blob" aria-hidden="true"></div>
+
+            <div class="hero-inner">
+                <!-- 左：文字内容 -->
+                <div class="hero-copy">
+                    <div class="hero-badge">
+                        <span class="badge-dot"></span>
+                        <span>广东工业大学 · 25级研究生</span>
+                    </div>
+
+                    <h1 id="hero-title" class="hero-title">
+                        <span class="hero-title-line">林韦婧</span>
+                    </h1>
+
+                    <p class="hero-role">服务设计 &amp; 用户研究</p>
+
+                    <p class="hero-lead">
+                        以研究驱动设计，用系统思维连接真实需求与可持续体验。<br>
+                        从产品设计出发，聚焦服务蓝图、用户洞察与数智触点创新。
+                    </p>
+
+                    <div class="hero-cta">
+                        <a class="btn btn-primary btn-lg" href="#projects">
+                            <span>浏览作品</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </a>
+                        <a class="btn btn-ghost btn-lg" href="assets/lin-weijing-portfolio.pdf" target="_blank" rel="noopener">
+                            <span>完整作品集</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2H2v10l9.29 9.29a1 1 0 001.42 0l6.58-6.58a1 1 0 000-1.42L12 2z"/><path d="M7 13h10"/></svg>
+                        </a>
+                    </div>
+
+                    <!-- 小标签云 -->
+                    <div class="hero-tags">
+                        <span>服务设计</span>
+                        <span>用户研究</span>
+                        <span>UX Design</span>
+                        <span>可持续产品</span>
+                        <span>非遗活化</span>
+                    </div>
+                </div>
+
+                <!-- 右：Bento 风格信息卡片 -->
+                <div class="hero-bento">
+                    <!-- 主图卡片 -->
+                    <div class="bento-card bento-main glass-panel" data-tilt>
+                        <img src="assets/portfolio-cover.jpg" alt="林韦婧作品集封面" loading="eager">
+                        <div class="bento-main-overlay">
+                            <span class="bento-main-label">Portfolio 2026</span>
+                        </div>
+                    </div>
+
+                    <!-- 头像卡片 -->
+                    <div class="bento-card bento-avatar glass-panel" data-tilt>
+                        <img src="assets/lwj-avatar.jpg" alt="林韦婧" loading="eager">
+                        <div class="bento-avatar-info">
+                            <strong>林韦婧</strong>
+                            <span>服务设计 · 用户研究</span>
+                        </div>
+                    </div>
+
+                    <!-- 数字指标卡 -->
+                    <div class="bento-card bento-stat glass-panel" data-tilt>
+                        <span class="bento-stat-num" data-count="4">0</span>
+                        <span class="bento-stat-label">核心项目</span>
+                    </div>
+
+                    <!-- 排名卡 -->
+                    <div class="bento-card bento-rank glass-panel" data-tilt>
+                        <span class="bento-stat-num" data-count="1">0</span>
+                        <span class="bento-stat-label">本科综合排名</span>
+                        <small>1 / 58</small>
+                    </div>
+
+                    <!-- 状态卡 -->
+                    <div class="bento-card bento-status glass-panel" data-tilt>
+                        <span class="badge-dot active"></span>
+                        <span>25级研究生 · 广工大</span>
+                    </div>
                 </div>
             </div>
-            <div class="hero-visual">
-                <div class="hero-cover-wrap glass-panel">
-                    <img class="hero-cover" src="assets/portfolio-cover.jpg" alt="作品集封面" width="1600" height="576">
-                </div>
-                <figure class="portrait glass-panel" data-tilt>
-                    <img src="assets/lwj-avatar.jpg" alt="林韦婧" width="900" height="900">
-                    <figcaption>
-                        <span>林韦婧</span>
-                        <strong>服务设计与用户研究方向</strong>
-                    </figcaption>
-                </figure>
+
+            <!-- 向下滚动提示 -->
+            <div class="hero-scroll-hint" aria-hidden="true">
+                <div class="scroll-line"></div>
+                <span>Scroll</span>
             </div>
         </section>
 
-        <section class="signal-strip" aria-label="核心亮点">
-            <div class="signal-card glass-panel" data-tilt>
-                <span class="signal-number">25级</span>
-                <span class="signal-label">广东工业大学 · 工业设计工程</span>
+        <!-- ═══════════════════════════════════════════
+             MARQUEE — 文字滚动横幅
+             ═══════════════════════════════════════════ -->
+        <div class="marquee-section" aria-hidden="true">
+            <div class="marquee-track">
+                <span class="marquee-content">
+                    <span>服务设计</span><span class="sep">✦</span>
+                    <span>用户研究</span><span class="sep">✦</span>
+                    <span>UX Design</span><span class="sep">✦</span>
+                    <span>可持续产品</span><span class="sep">✦</span>
+                    <span>非遗数字化</span><span class="sep">✦</span>
+                    <span>服务蓝图</span><span class="sep">✦</span>
+                    <span>交互原型</span><span class="sep">✦</span>
+                    <span>CMF研究</span><span class="sep">✦</span>
+                </span>
+                <span class="marquee-content" aria-hidden="true">
+                    <span>服务设计</span><span class="sep">✦</span>
+                    <span>用户研究</span><span class="sep">✦</span>
+                    <span>UX Design</span><span class="sep">✦</span>
+                    <span>可持续产品</span><span class="sep">✦</span>
+                    <span>非遗数字化</span><span class="sep">✦</span>
+                    <span>服务蓝图</span><span class="sep">✦</span>
+                    <span>交互原型</span><span class="sep">✦</span>
+                    <span>CMF研究</span><span class="sep">✦</span>
+                </span>
             </div>
-            <div class="signal-card glass-panel" data-tilt>
-                <span class="signal-number">1/58</span>
-                <span class="signal-label">本科综合排名</span>
-            </div>
-            <div class="signal-card glass-panel" data-tilt>
-                <span class="signal-number">4</span>
-                <span class="signal-label">核心作品集项目</span>
-            </div>
-            <div class="signal-card glass-panel" data-tilt>
-                <span class="signal-number">RCCSE</span>
-                <span class="signal-label">核心期刊收录研究成果</span>
-            </div>
-        </section>
+        </div>
 
+        <!-- ═══════════════════════════════════════════
+             ABOUT — 自我介绍
+             ═══════════════════════════════════════════ -->
         <section class="section" id="about">
             <div class="section-heading">
-                <span class="section-kicker">About Me</span>
+                <span class="section-kicker">About</span>
                 <h2>关于我</h2>
-                <p>从产品设计进入服务设计与用户研究，我更关注"为什么设计"以及"设计如何进入真实系统"。</p>
+                <p>从产品设计到服务设计，我关注的是"为什么"，以及设计如何真正进入真实系统。</p>
             </div>
             <div class="about-grid">
                 <article class="glass-panel about-story" data-tilt>
-                    <h3>研究型设计学习者</h3>
-                    <p>本科阶段我围绕产品设计、交互体验、CMF、设计心理学、设计行销与管理等方向持续训练，并在多个项目中担任负责人或核心成员。现在我将研究重心放在服务设计与用户研究，期待把用户洞察、服务蓝图、触点规划与原型验证结合起来，形成更可持续的系统方案。</p>
-                    <p>我的项目覆盖非遗数字化服务、可持续包装、亲子益智产品与多场景无人机系统。相比单一造型表达，我更希望用调研、分析和叙事把产品、服务、场景和社会价值串联起来。</p>
+                    <div class="about-story-header">
+                        <span class="about-icon">✦</span>
+                        <h3>研究型设计学习者</h3>
+                    </div>
+                    <p>本科阶段我围绕产品设计、交互体验、CMF、设计心理学、设计行销与管理等方向持续训练，并在多个项目中担任负责人或核心成员。</p>
+                    <p>现在我将研究重心放在服务设计与用户研究，期待把用户洞察、服务蓝图、触点规划与原型验证结合起来，形成更可持续的系统方案。</p>
+                    <div class="about-highlight">
+                        <span>非遗数字化服务</span>
+                        <span>可持续包装</span>
+                        <span>亲子益智产品</span>
+                        <span>多场景无人机系统</span>
+                    </div>
                 </article>
                 <div class="focus-list">
-                    <span class="focus-item glass-panel" data-tilt><i></i>用户访谈与需求洞察</span>
-                    <span class="focus-item glass-panel" data-tilt><i></i>服务蓝图与用户旅程</span>
-                    <span class="focus-item glass-panel" data-tilt><i></i>系统设计与触点规划</span>
-                    <span class="focus-item glass-panel" data-tilt><i></i>可持续产品与CMF</span>
-                    <span class="focus-item glass-panel" data-tilt><i></i>数字服务生态</span>
-                    <span class="focus-item glass-panel" data-tilt><i></i>跨学科协作落地</span>
+                    <span class="focus-item glass-panel" data-tilt>
+                        <i class="focus-icon">◈</i>用户访谈与需求洞察
+                    </span>
+                    <span class="focus-item glass-panel" data-tilt>
+                        <i class="focus-icon">◈</i>服务蓝图与用户旅程
+                    </span>
+                    <span class="focus-item glass-panel" data-tilt>
+                        <i class="focus-icon">◈</i>系统设计与触点规划
+                    </span>
+                    <span class="focus-item glass-panel" data-tilt>
+                        <i class="focus-icon">◈</i>可持续产品与CMF
+                    </span>
+                    <span class="focus-item glass-panel" data-tilt>
+                        <i class="focus-icon">◈</i>数字服务生态
+                    </span>
+                    <span class="focus-item glass-panel" data-tilt>
+                        <i class="focus-icon">◈</i>跨学科协作落地
+                    </span>
                 </div>
             </div>
         </section>
 
+        <!-- ═══════════════════════════════════════════
+             EDUCATION — 教育背景
+             ═══════════════════════════════════════════ -->
         <section class="section" id="education">
             <div class="section-heading">
                 <span class="section-kicker">Education</span>
                 <h2>教育背景</h2>
-                <p>以工业设计工程为当下研究主线，以产品设计训练作为方法基础。</p>
+                <p>工业设计工程为研究主线，产品设计为方法基础。</p>
             </div>
             <div class="timeline">
                 <article class="glass-panel timeline-card" data-tilt>
-                    <span class="period">2025.09 - 至今</span>
+                    <div class="timeline-dot"></div>
+                    <span class="period">2025.09 — 至今</span>
                     <h3>广东工业大学</h3>
                     <p class="role">工业设计工程 · 25级研究生</p>
                     <p>研究方向聚焦服务设计与用户研究，关注复杂场景中的用户需求、服务流程、交互触点与创新价值转化。</p>
+                    <div class="timeline-tags">
+                        <span>服务设计</span><span>用户研究</span><span>数智系统</span>
+                    </div>
                 </article>
                 <article class="glass-panel timeline-card" data-tilt>
-                    <span class="period">2021.09 - 2025.06</span>
+                    <div class="timeline-dot"></div>
+                    <span class="period">2021.09 — 2025.06</span>
                     <h3>福建理工大学</h3>
-                    <p class="role">产品设计 · 本科</p>
-                    <p>本科绩点 3.65/5.0，综合排名 1/58。主修产品表现技法、CMF设计应用、产品设计进阶、人因工程学、造型材料与成型工艺、设计心理学等课程。</p>
+                    <p class="role">产品设计 · 本科 · GPA 3.65/5.0</p>
+                    <p>综合排名 1/58。主修产品表现技法、CMF设计应用、产品设计进阶、人因工程学、造型材料与成型工艺、设计心理学等课程。</p>
+                    <div class="timeline-tags">
+                        <span>产品设计</span><span>CMF</span><span>人因工程</span>
+                    </div>
                 </article>
             </div>
         </section>
 
+        <!-- ═══════════════════════════════════════════
+             EXPERIENCE — 实践经历
+             ═══════════════════════════════════════════ -->
         <section class="section" id="experience">
             <div class="section-heading">
                 <span class="section-kicker">Experience</span>
@@ -166,22 +292,22 @@
             <div class="experience-grid">
                 <article class="glass-panel experience-card" data-tilt>
                     <div class="card-meta">
-                        <span>2023.07 - 2023.08</span>
-                        <strong>产品外观设计</strong>
+                        <span class="period">2023.07 — 2023.08</span>
+                        <strong class="role-tag">产品外观设计</strong>
                     </div>
                     <h3>厦门新锐创意电子科技有限公司</h3>
-                    <ul>
+                    <ul class="card-list">
                         <li>参与公司新品前期调研与竞品分析，梳理市场风格与产品差异点。</li>
-                        <li>为公司提供 50 余套产品外观设计方案，支持方案比选与后续深化。</li>
+                        <li>提供 50 余套产品外观设计方案，支持方案比选与后续深化。</li>
                     </ul>
                 </article>
                 <article class="glass-panel experience-card" data-tilt>
                     <div class="card-meta">
-                        <span>2023.06 - 2024.09</span>
-                        <strong>执行主席</strong>
+                        <span class="period">2023.06 — 2024.09</span>
+                        <strong class="role-tag">执行主席</strong>
                     </div>
                     <h3>院学生会</h3>
-                    <ul>
+                    <ul class="card-list">
                         <li>统筹管理学生会 5 个大部门、18 个小部门，协调 215 位干部干事。</li>
                         <li>组织推进校运动会、院学代会、十佳歌手、毕业晚会等项目。</li>
                     </ul>
@@ -189,32 +315,45 @@
             </div>
         </section>
 
+        <!-- ═══════════════════════════════════════════
+             SKILLS — 技能专长
+             ═══════════════════════════════════════════ -->
         <section class="section" id="skills">
             <div class="section-heading">
                 <span class="section-kicker">Capabilities</span>
                 <h2>技能专长</h2>
-                <p>能力结构围绕"研究、策略、原型、表达、验证"展开。</p>
+                <p>围绕"研究、策略、原型、表达、验证"展开。</p>
             </div>
             <div class="skills-grid">
-                <article class="glass-panel skill-card" data-tilt>
-                    <div class="skill-icon">🔍</div>
+                <article class="glass-panel skill-card skill-featured" data-tilt>
+                    <div class="skill-icon-lg">🔍</div>
                     <h3>用户研究与服务设计</h3>
                     <p>用户访谈、问卷调研、竞品分析、需求分层、用户画像、用户旅程、服务蓝图、触点规划。</p>
                 </article>
                 <article class="glass-panel skill-card" data-tilt>
                     <div class="skill-icon">🎨</div>
                     <h3>产品与交互表达</h3>
-                    <p>产品概念推导、CMF分析、信息架构、流程图、低/高保真原型、交互说明。</p>
+                    <p>产品概念推导、CMF分析、信息架构、流程图、低/高保真原型。</p>
                 </article>
-                <article class="glass-panel skill-card" data-tilt>
-                    <div class="skill-icon">🛠</div>
+                <article class="glass-panel skill-card skill-tools" data-tilt>
                     <h3>软件工具</h3>
-                    <div class="tool-list">
-                        <span style="--p:72%">Creo</span>
-                        <span style="--p:68%">KeyShot</span>
-                        <span style="--p:65%">PS</span>
-                        <span style="--p:62%">SPSS</span>
-                        <span style="--p:60%">Rhino</span>
+                    <div class="tool-bars">
+                        <div class="tool-item">
+                            <div class="tool-label"><span>Figma</span><span>85%</span></div>
+                            <div class="tool-bar"><div class="tool-fill" style="--w:85%"></div></div>
+                        </div>
+                        <div class="tool-item">
+                            <div class="tool-label"><span>Rhino / KeyShot</span><span>78%</span></div>
+                            <div class="tool-bar"><div class="tool-fill" style="--w:78%"></div></div>
+                        </div>
+                        <div class="tool-item">
+                            <div class="tool-label"><span>PS / AI</span><span>80%</span></div>
+                            <div class="tool-bar"><div class="tool-fill" style="--w:80%"></div></div>
+                        </div>
+                        <div class="tool-item">
+                            <div class="tool-label"><span>SPSS / 数据分析</span><span>62%</span></div>
+                            <div class="tool-bar"><div class="tool-fill" style="--w:62%"></div></div>
+                        </div>
                     </div>
                 </article>
                 <article class="glass-panel skill-card" data-tilt>
@@ -225,214 +364,229 @@
             </div>
         </section>
 
+        <!-- ═══════════════════════════════════════════
+             PROJECTS — 项目作品
+             ═══════════════════════════════════════════ -->
         <section class="section" id="projects">
             <div class="section-heading">
                 <span class="section-kicker">Portfolio</span>
                 <h2>项目作品</h2>
-                <p>作品从用户研究、系统策略、原型表达和成果转化四个维度呈现。</p>
+                <p>从用户研究、系统策略、原型表达到成果转化。</p>
             </div>
             <div class="projects-grid">
-                <article class="glass-panel project-card" data-tilt>
+
+                <!-- 项目1：竹构美好 — 特色大卡片 -->
+                <article class="glass-panel project-card project-featured" data-tilt>
                     <div class="project-img-wrap">
-                        <img src="assets/project-bamboo-service.jpg" alt="竹构美好" width="1400" height="504" loading="lazy">
+                        <img src="assets/project-bamboo-service.jpg" alt="竹构美好" loading="lazy">
+                        <div class="project-img-overlay">
+                            <span class="project-year">2024</span>
+                        </div>
                     </div>
                     <div class="project-body">
-                        <div class="project-tags"><span>服务设计</span><span>UI/UX</span><span>非遗数字化</span></div>
+                        <div class="project-tags">
+                            <span class="tag-primary">服务设计</span>
+                            <span>非遗数字化</span>
+                            <span>UX/UI</span>
+                        </div>
                         <h3>竹构美好：竹艺数智服务系统</h3>
                         <p>围绕传统竹艺的数字化传承与服务创新，构建资料库、云端博物馆、AI竹艺编辑器和3D智能扫描等触点，探索非遗活化的云端新生态。深入福建宁德等地调研，覆盖45+乡村，收集产品数据8356份。</p>
-                        <dl>
-                            <div><dt>角色</dt><dd>负责人</dd></div>
-                            <div><dt>成果</dt><dd>大广赛二等奖；iCCA铜奖；NCDA国奖；RCCSE核心期刊收录</dd></div>
+                        <dl class="project-meta">
+                            <div><dt>角色</dt><dd>项目负责人</dd></div>
+                            <div><dt>奖项</dt><dd>大广赛二等奖 · iCCA铜奖 · NCDA国奖 · RCCSE期刊收录</dd></div>
                         </dl>
+                        <div class="project-footer">
+                            <a class="project-link" href="#">查看详情 →</a>
+                        </div>
                     </div>
                 </article>
+
+                <!-- 项目2 -->
                 <article class="glass-panel project-card" data-tilt>
                     <div class="project-img-wrap">
-                        <img src="assets/project-second-life.jpg" alt="第二次生命" width="1400" height="504" loading="lazy">
+                        <img src="assets/project-secondlife-detail.jpg" alt="第二次生命" loading="lazy">
+                        <div class="project-img-overlay"><span class="project-year">2024</span></div>
                     </div>
                     <div class="project-body">
-                        <div class="project-tags"><span>产品设计</span><span>可持续包装</span><span>CMF</span></div>
-                        <h3>第二次生命：可持续花瓶外包装</h3>
-                        <p>基于环保与再利用理念，将花瓶外包装转化为可种植容器。茶叶渣、蛋壳等可堆肥材料经好氧发酵转化为花盆，实现"包装→花盆→土壤"全生命周期闭环。三版迭代优化。</p>
-                        <dl>
-                            <div><dt>方法</dt><dd>竞品分析、CMF意向、结构推敲、可持续生命周期分析</dd></div>
-                            <div><dt>成果</dt><dd>华夏奖国铜；泰隆杯省级银奖；ODA国家级二等奖</dd></div>
+                        <div class="project-tags"><span class="tag-primary">产品设计</span><span>可持续</span></div>
+                        <h3>第二次生命</h3>
+                        <p>将花瓶外包装转化为可种植容器。茶叶渣、蛋壳等可堆肥材料经好氧发酵转化为花盆，实现"包装→花盆→土壤"全生命周期闭环。</p>
+                        <dl class="project-meta">
+                            <div><dt>奖项</dt><dd>泰隆杯银奖 · DOA全国二等奖</dd></div>
                         </dl>
                     </div>
                 </article>
+
+                <!-- 项目3 -->
                 <article class="glass-panel project-card" data-tilt>
                     <div class="project-img-wrap">
-                        <img src="assets/project-maigua-nfc.jpg" alt="变卦" width="1400" height="504" loading="lazy">
+                        <img src="assets/project-maigua-detail.jpg" alt="变卦" loading="lazy">
+                        <div class="project-img-overlay"><span class="project-year">2024</span></div>
                     </div>
                     <div class="project-body">
-                        <div class="project-tags"><span>产品设计</span><span>亲子体验</span><span>NFC交互</span></div>
-                        <h3>变卦：亲子共弈 NFC 六爻益智玩具</h3>
-                        <p>以周易文化为灵感，结合亲子共学与NFC交互，将传统文化转化为可操作、可陪伴的儿童学习体验。双用户画像：家长决策层+儿童使用者层。</p>
-                        <dl>
-                            <div><dt>重点</dt><dd>亲子互动路径、棋具结构、CMF方案、NFC信息反馈</dd></div>
-                            <div><dt>成果</dt><dd>中国教育装备展省级银奖；DOA全国三等奖</dd></div>
+                        <div class="project-tags"><span class="tag-primary">产品设计</span><span>NFC</span><span>教育</span></div>
+                        <h3>变卦 — 儿童易经教育棋</h3>
+                        <p>以周易文化为灵感，结合亲子共学与NFC交互，将传统文化转化为可操作、可陪伴的儿童学习体验。</p>
+                        <dl class="project-meta">
+                            <div><dt>奖项</dt><dd>教育装备展银奖 · DOA三等奖</dd></div>
                         </dl>
                     </div>
                 </article>
+
+                <!-- 项目4 -->
                 <article class="glass-panel project-card" data-tilt>
                     <div class="project-img-wrap">
-                        <img src="assets/project-drone-service.jpg" alt="穿隧蜂" width="1400" height="504" loading="lazy">
+                        <img src="assets/project-drone-detail.jpg" alt="穿隧蜂" loading="lazy">
+                        <div class="project-img-overlay"><span class="project-year">2023</span></div>
                     </div>
                     <div class="project-body">
-                        <div class="project-tags"><span>系统设计</span><span>服务场景</span><span>无人机应用</span></div>
-                        <h3>穿隧蜂：炮射无人机应用研究</h3>
-                        <p>面向农业植保与多场景应用，提出可折叠炮射无人机与集群反射平台方案，创新性引入炮射机制突破地形限制，支持山地/温室/大田等不同环境。</p>
-                        <dl>
-                            <div><dt>角色</dt><dd>主演讲人 / 核心成员</dd></div>
-                            <div><dt>成果</dt><dd>省创新大赛金奖；国创赛铜奖；挑战杯校级奖</dd></div>
+                        <div class="project-tags"><span class="tag-primary">产品设计</span><span>智能交互</span></div>
+                        <h3>穿隧蜂 — 炮射无人机</h3>
+                        <p>面向农业植保与多场景应用，提出可折叠炮射无人机与集群反射平台方案，突破地形限制。</p>
+                        <dl class="project-meta">
+                            <div><dt>奖项</dt><dd>挑战杯校级奖</dd></div>
                         </dl>
                     </div>
                 </article>
+
             </div>
 
-            <!-- CircularGallery — 水平滚动弧形画廊 -->
+            <!-- CircularGallery 水平画廊 -->
             <div class="gallery-section">
                 <div class="gallery-strap">
-                    <h3>作品集精选</h3>
-                    <p>拖拽浏览更多 →</p>
+                    <h3>精选图片</h3>
+                    <p>拖拽浏览 →</p>
                 </div>
-                <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: thin;">
+                <div class="gallery-scroll-wrap">
                     <div class="circular-track" role="list" aria-label="作品集图片画廊">
                         <figure class="circular-item" role="listitem">
                             <img src="assets/project-bamboo-overview.jpg" alt="竹构美好概览" loading="lazy">
-                            <figcaption>
-                                <h4>竹构美好</h4>
-                                <p>服务系统架构</p>
-                            </figcaption>
+                            <figcaption><h4>竹构美好</h4><p>服务系统架构</p></figcaption>
                         </figure>
                         <figure class="circular-item" role="listitem">
                             <img src="assets/project-bamboo-detail.jpg" alt="竹构美好详情" loading="lazy">
-                            <figcaption>
-                                <h4>竹构美好</h4>
-                                <p>多触点服务体系</p>
-                            </figcaption>
+                            <figcaption><h4>竹构美好</h4><p>多触点服务</p></figcaption>
                         </figure>
                         <figure class="circular-item" role="listitem">
-                            <img src="assets/project-secondlife-detail.jpg" alt="第二次生命详情" loading="lazy">
-                            <figcaption>
-                                <h4>第二次生命</h4>
-                                <p>材料研究与迭代</p>
-                            </figcaption>
+                            <img src="assets/project-secondlife-detail.jpg" alt="第二次生命" loading="lazy">
+                            <figcaption><h4>第二次生命</h4><p>材料迭代</p></figcaption>
                         </figure>
                         <figure class="circular-item" role="listitem">
-                            <img src="assets/project-maigua-detail.jpg" alt="变卦详情" loading="lazy">
-                            <figcaption>
-                                <h4>变卦</h4>
-                                <p>NFC 交互与棋具结构</p>
-                            </figcaption>
+                            <img src="assets/project-maigua-detail.jpg" alt="变卦" loading="lazy">
+                            <figcaption><h4>变卦</h4><p>NFC交互</p></figcaption>
                         </figure>
                         <figure class="circular-item" role="listitem">
-                            <img src="assets/project-drone-detail.jpg" alt="穿隧蜂详情" loading="lazy">
-                            <figcaption>
-                                <h4>穿隧蜂</h4>
-                                <p>多场景应用路线</p>
-                            </figcaption>
-                        </figure>
-                        <figure class="circular-item" role="listitem">
-                            <img src="assets/project-bamboo-service.jpg" alt="竹构美好服务" loading="lazy">
-                            <figcaption>
-                                <h4>竹构美好</h4>
-                                <p>数智服务触点</p>
-                            </figcaption>
+                            <img src="assets/project-drone-detail.jpg" alt="穿隧蜂" loading="lazy">
+                            <figcaption><h4>穿隧蜂</h4><p>多场景应用</p></figcaption>
                         </figure>
                     </div>
                 </div>
-                <p class="gallery-hint"><span>→</span> 可拖拽或滚动浏览</p>
             </div>
         </section>
 
+        <!-- ═══════════════════════════════════════════
+             AWARDS — 荣誉
+             ═══════════════════════════════════════════ -->
         <section class="section" id="awards">
             <div class="section-heading">
                 <span class="section-kicker">Honors</span>
-                <h2>荣誉与学术成果</h2>
+                <h2>荣誉与成果</h2>
                 <p>竞赛、研究与校园实践共同构成持续成长的证据链。</p>
             </div>
-            <div class="award-list">
-                <article class="glass-panel award-card" data-tilt>
-                    <span>2024.09</span>
-                    <h3>ODA 东方设计奖</h3>
-                    <p>国家级二等奖、省级三等奖</p>
+            <div class="awards-grid">
+                <article class="glass-panel award-card award-featured" data-tilt>
+                    <div class="award-level">🏆 国家级</div>
+                    <h3>大广赛 · 全国二等奖</h3>
+                    <p>竹构美好 — 非遗数字化服务系统</p>
                 </article>
                 <article class="glass-panel award-card" data-tilt>
-                    <span>2024.06</span>
-                    <h3>"华夏奖"文化艺术设计大赛</h3>
-                    <p>国铜奖</p>
+                    <div class="award-level">🥉 国家级</div>
+                    <h3>NCDA · 国家奖</h3>
+                    <p>竹构美好 — 数字创意作品</p>
                 </article>
                 <article class="glass-panel award-card" data-tilt>
-                    <span>2024.03</span>
-                    <h3>《家具与室内装饰》收录</h3>
-                    <p>竹集成材表面色彩感性意象量化研究 · RCCSE核心期刊</p>
+                    <div class="award-level">🥈 省级</div>
+                    <h3>泰隆杯 · 银奖</h3>
+                    <p>第二次生命 — 可持续包装</p>
                 </article>
                 <article class="glass-panel award-card" data-tilt>
-                    <span>2023.09</span>
-                    <h3>中国包装创意设计大赛</h3>
-                    <p>国家级三等奖</p>
+                    <div class="award-level">🥈 省级</div>
+                    <h3>iCCA · 铜奖</h3>
+                    <p>竹构美好 — 服务设计</p>
                 </article>
-                <article class="glass-panel award-card" data-tilt>
-                    <span>2021-2024</span>
-                    <h3>综合二等奖学金</h3>
-                    <p>连续三年 · 艺术节优秀个人奖连续四年</p>
+                <article class="glass-panel award-card award-wide" data-tilt>
+                    <div class="award-level">📄 学术</div>
+                    <h3>RCCSE 核心期刊</h3>
+                    <p>竹集成材表面色彩感性意象量化研究</p>
                 </article>
             </div>
         </section>
 
+        <!-- ═══════════════════════════════════════════
+             CONTACT — 联系
+             ═══════════════════════════════════════════ -->
         <section class="section contact-section" id="contact">
             <div class="section-heading">
                 <span class="section-kicker">Contact</span>
-                <h2>联系方式</h2>
+                <h2>建立联系</h2>
                 <p>欢迎交流服务设计、用户研究与项目合作。</p>
             </div>
             <div class="contact-grid">
-                <div class="glass-panel contact-panel" data-tilt>
-                    <div class="contact-row">
-                        <span class="contact-icon">📧</span>
-                        <a href="mailto:1256381960@qq.com">1256381960@qq.com</a>
-                    </div>
-                    <div class="contact-row">
-                        <span class="contact-icon">🏫</span>
-                        <span>广东工业大学 · 艺术与设计学院</span>
-                    </div>
-                    <div class="contact-row">
-                        <span class="contact-icon">📍</span>
-                        <span>广东省广州市</span>
-                    </div>
-                    <div class="contact-row">
-                        <span class="contact-icon">💻</span>
-                        <a href="https://github.com/lybw1256381960" target="_blank" rel="noopener noreferrer">github.com/lybw1256381960</a>
-                    </div>
-                    <div class="contact-row">
-                        <span class="contact-icon">📄</span>
-                        <a href="assets/lin-weijing-portfolio.pdf" target="_blank" rel="noopener noreferrer">查看 PDF 作品集</a>
-                    </div>
+                <div class="contact-cards">
+                    <a class="glass-panel contact-card" href="mailto:1256381960@qq.com" data-tilt>
+                        <div class="contact-icon">✉</div>
+                        <div>
+                            <strong>邮箱</strong>
+                            <span>1256381960@qq.com</span>
+                        </div>
+                    </a>
+                    <a class="glass-panel contact-card" href="https://lybw1256381960.github.io/" target="_blank" rel="noopener" data-tilt>
+                        <div class="contact-icon">◈</div>
+                        <div>
+                            <strong>个人网站</strong>
+                            <span>lybw1256381960.github.io</span>
+                        </div>
+                    </a>
+                    <a class="glass-panel contact-card" href="https://github.com/lybw1256381960" target="_blank" rel="noopener" data-tilt>
+                        <div class="contact-icon">◎</div>
+                        <div>
+                            <strong>GitHub</strong>
+                            <span>@lybw1256381960</span>
+                        </div>
+                    </a>
                 </div>
-                <form class="glass-panel contact-form" id="contact-form">
-                    <label for="name">姓名</label>
-                    <input id="name" name="name" type="text" autocomplete="name" placeholder="请输入你的姓名" required>
-                    <label for="email">邮箱</label>
-                    <input id="email" name="email" type="email" autocomplete="email" placeholder="请输入你的邮箱" required>
-                    <label for="message">留言</label>
-                    <textarea id="message" name="message" placeholder="请输入你想交流的内容" required></textarea>
-                    <button class="btn btn-primary" type="submit">发送邮件</button>
+                <form class="glass-panel contact-form" id="contact-form" novalidate>
+                    <div class="form-row">
+                        <label for="cf-name">姓名</label>
+                        <input type="text" id="cf-name" name="name" placeholder="你的名字" required>
+                    </div>
+                    <div class="form-row">
+                        <label for="cf-email">邮箱</label>
+                        <input type="email" id="cf-email" name="email" placeholder="your@email.com" required>
+                    </div>
+                    <div class="form-row">
+                        <label for="cf-message">留言</label>
+                        <textarea id="cf-message" name="message" rows="4" placeholder="想聊点什么..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <span>发送消息</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                    </button>
                 </form>
             </div>
         </section>
+
     </main>
 
     <footer class="site-footer">
-        <p>© <span data-year>2026</span> 林韦婧 · Service Design & User Research</p>
+        <p>© <span data-year>2026</span> 林韦婧 · Service Design &amp; User Research</p>
     </footer>
 
-    <!-- GSAP + ScrollTrigger (本地缓存) -->
+    <!-- Scripts -->
     <script src="assets/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-    <!-- LiquidEther Fluid Background -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="liquid-ether.js"></script>
+    <script src="splash-liquid.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
