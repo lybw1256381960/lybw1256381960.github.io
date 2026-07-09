@@ -6,6 +6,20 @@
 (function() {
   'use strict';
 
+  // Get OGL from global scope (UMD builds expose as window.OGL or individual exports)
+  function getOGL() {
+    if (window.OGL) return window.OGL;
+    if (window.ogl) return window.ogl;
+    // Try to find any OGL export
+    const keys = Object.keys(window);
+    for (const k of keys) {
+      if (k.toLowerCase() === 'ogl' && window[k] && window[k].Renderer) {
+        return window[k];
+      }
+    }
+    return null;
+  }
+
   // Utils
   function debounce(func, wait) {
     let timeout;
@@ -129,7 +143,7 @@
     context.textAlign = 'center';
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.fillText(text, canvas.width / 2, canvas.height / 2);
-    const texture = new window.ogl.Texture(gl, { generateMipmaps: false });
+    const texture = new OGL.Texture(gl, { generateMipmaps: false });
     texture.image = canvas;
     return { texture, width: canvas.width, height: canvas.height };
   }
@@ -149,8 +163,8 @@
 
     createMesh() {
       const { texture, width, height } = createTextTexture(this.gl, this.text, this.font, this.textColor);
-      const geometry = new window.ogl.Plane(this.gl);
-      const program = new window.ogl.Program(this.gl, {
+      const geometry = new OGL.Plane(this.gl);
+      const program = new OGL.Program(this.gl, {
         vertex: `
           attribute vec3 position;
           attribute vec2 uv;
@@ -175,7 +189,7 @@
         uniforms: { tMap: { value: texture } },
         transparent: true
       });
-      this.mesh = new window.ogl.Mesh(this.gl, { geometry, program });
+      this.mesh = new OGL.Mesh(this.gl, { geometry, program });
       const aspect = width / height;
       const textHeight = this.plane.scale.y * 0.15;
       const textWidth = textHeight * aspect;
@@ -213,8 +227,8 @@
     }
 
     createShader() {
-      const texture = new window.ogl.Texture(this.gl, { generateMipmaps: true });
-      this.program = new window.ogl.Program(this.gl, {
+      const texture = new OGL.Texture(this.gl, { generateMipmaps: true });
+      this.program = new OGL.Program(this.gl, {
         depthTest: false,
         depthWrite: false,
         vertex: `
@@ -284,7 +298,7 @@
     }
 
     createMesh() {
-      this.plane = new window.ogl.Mesh(this.gl, { geometry: this.geometry, program: this.program });
+      this.plane = new OGL.Mesh(this.gl, { geometry: this.geometry, program: this.program });
       this.plane.setParent(this.scene);
     }
 
@@ -372,7 +386,7 @@
     }
 
     createRenderer() {
-      this.renderer = new window.ogl.Renderer({
+      this.renderer = new OGL.Renderer({
         alpha: true, antialias: true,
         dpr: Math.min(window.devicePixelRatio || 1, 2)
       });
@@ -382,17 +396,17 @@
     }
 
     createCamera() {
-      this.camera = new window.ogl.Camera(this.gl);
+      this.camera = new OGL.Camera(this.gl);
       this.camera.fov = 45;
       this.camera.position.z = 20;
     }
 
     createScene() {
-      this.scene = new window.ogl.Transform();
+      this.scene = new OGL.Transform();
     }
 
     createGeometry() {
-      this.planeGeometry = new window.ogl.Plane(this.gl, { heightSegments: 50, widthSegments: 100 });
+      this.planeGeometry = new OGL.Plane(this.gl, { heightSegments: 50, widthSegments: 100 });
     }
 
     createMedias(items, bend = 1, textColor, borderRadius, font) {
@@ -515,10 +529,13 @@
   // Global init function
   window.CircularGallery = {
     init: function(container, options) {
-      if (!window.ogl) {
+      const OGL = getOGL();
+      if (!OGL) {
         console.error('CircularGallery: ogl library not loaded');
         return null;
       }
+      // Make OGL available globally for the classes
+      window.OGL = OGL;
       return new App(container, options);
     }
   };
