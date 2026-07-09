@@ -26,8 +26,12 @@
     <script src="https://unpkg.com/framer-motion@11.11.17/dist/framer-motion.js"></script>
     <!-- Three.js (required by liquid-ether.js) -->
     <script src="assets/three.min.js"></script>
+    <!-- OGL for CircularGallery -->
+    <script src="https://unpkg.com/ogl@1.0.11/dist/ogl.umd.js"></script>
     <!-- Splash Metaballs — liquid molecular spheres -->
     <script src="metaballs-splash.js"></script>
+    <!-- CircularGallery -->
+    <script src="circular-gallery.js"></script>
 </head>
 <body>
     <a class="skip-link" href="#main">跳转到主要内容</a>
@@ -392,58 +396,8 @@
                 <h2>项目作品</h2>
                 <p>从用户研究、系统策略、原型表达到成果转化。</p>
             </div>
-            <!-- 项目图片网格 -->
-            <div class="projects-photo-grid">
-                <div class="project-photo-card liquid-glass" data-tilt data-animate="fade-up" data-delay="0.1">
-                    <div class="project-photo-img" style="background-image:url('assets/project-bamboo-overview.jpg')"></div>
-                    <div class="project-photo-overlay">
-                        <span class="liquid-pill">服务设计</span>
-                        <h3>竹构美好</h3>
-                        <p>竹艺数智服务系统</p>
-                        <div class="project-photo-awards">
-                            <span class="liquid-pill">大广赛二等奖</span><span class="liquid-pill">iCCA铜奖</span><span class="liquid-pill">NCDA国奖</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="project-photo-card project-photo-card--tall liquid-glass" data-tilt data-animate="fade-up" data-delay="0.15">
-                    <div class="project-photo-img" style="background-image:url('assets/project-bamboo-detail.jpg')"></div>
-                    <div class="project-photo-overlay">
-                        <span class="liquid-pill">服务设计</span>
-                        <h3>竹构美好</h3>
-                        <p>数字化触点界面</p>
-                    </div>
-                </div>
-                <div class="project-photo-card liquid-glass" data-tilt data-animate="fade-up" data-delay="0.2">
-                    <div class="project-photo-img" style="background-image:url('assets/project-secondlife-detail.jpg')"></div>
-                    <div class="project-photo-overlay">
-                        <span class="liquid-pill">产品设计</span>
-                        <h3>第二次生命</h3>
-                        <p>可降解花盆包装</p>
-                        <div class="project-photo-awards">
-                            <span class="liquid-pill">泰隆杯银奖</span><span class="liquid-pill">DOA二等奖</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="project-photo-card liquid-glass" data-tilt data-animate="fade-up" data-delay="0.25">
-                    <div class="project-photo-img" style="background-image:url('assets/project-maigua-detail.jpg')"></div>
-                    <div class="project-photo-overlay">
-                        <span class="liquid-pill">产品设计</span>
-                        <h3>变卦</h3>
-                        <p>儿童益智棋</p>
-                        <div class="project-photo-awards">
-                            <span class="liquid-pill">教育装备展银奖</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="project-photo-card liquid-glass" data-tilt data-animate="fade-up" data-delay="0.3">
-                    <div class="project-photo-img" style="background-image:url('assets/project-drone-detail.jpg')"></div>
-                    <div class="project-photo-overlay">
-                        <span class="liquid-pill">产品设计</span>
-                        <h3>穿隧蜂</h3>
-                        <p>智能植保无人机</p>
-                    </div>
-                </div>
-            </div>
+            <!-- 项目 CircularGallery -->
+            <div id="circular-gallery-container" style="height: 600px; position: relative; margin: 2rem 0;"></div>
 
             <!-- 项目文字信息 -->
             <div class="projects-detail-row">
@@ -718,6 +672,48 @@
 
     const root = ReactDOM.createRoot(document.createElement('div'));
     root.render(<App />);
+    </script>
+
+    <!-- CircularGallery Init -->
+    <script>
+    (function() {
+        // Wait for splash to finish then init gallery
+        function initGallery() {
+            const container = document.getElementById('circular-gallery-container');
+            if (!container || !window.CircularGallery) return;
+
+            const projectItems = [
+                { image: 'assets/project-bamboo-overview.jpg', text: '竹构美好' },
+                { image: 'assets/project-bamboo-detail.jpg', text: '竹艺数字化' },
+                { image: 'assets/project-secondlife-detail.jpg', text: '第二次生命' },
+                { image: 'assets/project-maigua-detail.jpg', text: '变卦' },
+                { image: 'assets/project-drone-detail.jpg', text: '穿隧蜂' }
+            ];
+
+            window.CircularGallery.init(container, {
+                items: projectItems,
+                bend: 2,
+                textColor: '#2d5a5a',
+                borderRadius: 0.08,
+                scrollSpeed: 1.5,
+                scrollEase: 0.06
+            });
+        }
+
+        // Init after splash or immediately if no splash
+        if (document.getElementById('splash')) {
+            const checkSplash = setInterval(() => {
+                const splash = document.getElementById('splash');
+                if (!splash || splash.style.display === 'none' || splash.classList.contains('hidden')) {
+                    clearInterval(checkSplash);
+                    setTimeout(initGallery, 100);
+                }
+            }, 200);
+            setTimeout(() => { clearInterval(checkSplash); initGallery(); }, 5500);
+        } else {
+            initGallery();
+        }
+    })();
     </script>
 </body>
 </html>
