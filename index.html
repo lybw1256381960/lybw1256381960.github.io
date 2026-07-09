@@ -28,14 +28,8 @@
     <script src="assets/three.min.js"></script>
     <!-- Splash Metaballs — liquid molecular spheres -->
     <script src="metaballs-splash.js"></script>
-    <!-- OGL + CircularGallery (ESM) -->
-    <script type="module">
-        import * as OGL from 'https://unpkg.com/ogl@1.0.11/dist/ogl.esm.js';
-        window.OGL = OGL;
-        // Load CircularGallery after OGL is ready
-        await import('./circular-gallery.js');
-        window.CircularGalleryReady = true;
-    </script>
+    <!-- CircularGallery - Three.js based -->
+    <script src="circular-gallery-three.js"></script>
 </head>
 <body>
     <a class="skip-link" href="#main">跳转到主要内容</a>
@@ -679,30 +673,16 @@
     </script>
 
     <!-- CircularGallery Init -->
-    <script type="module">
-    (async function() {
-        // Wait for OGL and CircularGallery to be ready
-        async function waitForOGL(timeout = 10000) {
-            const start = Date.now();
-            while (Date.now() - start < timeout) {
-                if (window.OGL && window.CircularGallery) return true;
-                await new Promise(r => setTimeout(r, 50));
-            }
-            return false;
-        }
-
-        // Wait for splash to finish then init gallery
-        async function initGallery() {
-            const container = document.getElementById('circular-gallery-container');
-            if (!container) return;
-
-            const hasOGL = await waitForOGL();
-            if (!hasOGL || !window.CircularGallery) {
-                console.error('CircularGallery: OGL or CircularGallery not loaded');
+    <script>
+    (function() {
+        function initGallery() {
+            var container = document.getElementById('circular-gallery-container');
+            if (!container || !window.CircularGallery) {
+                console.error('CircularGallery: container or library not found');
                 return;
             }
 
-            const projectItems = [
+            var projectItems = [
                 { image: 'assets/project-bamboo-overview.jpg', text: '竹构美好' },
                 { image: 'assets/project-bamboo-detail.jpg', text: '竹艺数字化' },
                 { image: 'assets/project-secondlife-detail.jpg', text: '第二次生命' },
@@ -720,16 +700,16 @@
             });
         }
 
-        // Init after splash or immediately if no splash
+        // Init after splash or immediately
         if (document.getElementById('splash')) {
-            const checkSplash = setInterval(() => {
-                const splash = document.getElementById('splash');
+            var checkSplash = setInterval(function() {
+                var splash = document.getElementById('splash');
                 if (!splash || splash.style.display === 'none' || splash.classList.contains('hidden')) {
                     clearInterval(checkSplash);
                     setTimeout(initGallery, 100);
                 }
             }, 200);
-            setTimeout(() => { clearInterval(checkSplash); initGallery(); }, 5500);
+            setTimeout(function() { clearInterval(checkSplash); initGallery(); }, 5500);
         } else {
             initGallery();
         }
