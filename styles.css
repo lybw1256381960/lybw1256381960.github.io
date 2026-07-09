@@ -14,8 +14,8 @@
   /* Color Palette */
   --bg:           #fafefd;
   --bg-alt:       #f0faf8;
-  --bg-card:      rgba(255,255,255,0.58);
-  --bg-card-hover:rgba(255,255,255,0.85);
+  --bg-card:      rgba(255,255,255,0.72);
+  --bg-card-hover:rgba(255,255,255,0.90);
 
   /* Primary palette — high-saturation teal/cyan */
   --primary:      #3dc4a8;
