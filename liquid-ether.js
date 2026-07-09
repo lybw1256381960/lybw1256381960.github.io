@@ -8,7 +8,7 @@
 
   // ─── Config ───────────────────────────────────────────────────────────────
   const CONFIG = {
-    colors: ['#0055aa', '#0088dd', '#00c3ff', '#00e8d0', '#30ffcc'],
+    colors: ['#6dc5b8', '#8fddc5', '#b3ecd2', '#c8f2d8', '#e6f9ec'],
     mouseForce: 35,
     cursorSize: 50,
     resolution: 0.4,
@@ -21,7 +21,7 @@
     isBounce: false,
     autoDemo: true,
     autoSpeed: 0.15,
-    autoIntensity: 1.5,
+    autoIntensity: 1.0,
     takeoverDuration: 0.25,
     autoResumeDelay: 3000,
     autoRampDuration: 0.6,
