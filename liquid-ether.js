@@ -9,8 +9,8 @@
   // ─── Config ───────────────────────────────────────────────────────────────
   const CONFIG = {
     colors: ['#0fb89e', '#3dd4ba', '#5fe2c8', '#8eebd5', '#c5f4e2'],
-    mouseForce: 35,
-    cursorSize: 50,
+    mouseForce: 18,
+    cursorSize: 38,
     resolution: 0.4,
     dt: 0.014,
     BFECC: true,
