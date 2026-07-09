@@ -26,15 +26,16 @@
     <script src="https://unpkg.com/framer-motion@11.11.17/dist/framer-motion.js"></script>
     <!-- Three.js (required by liquid-ether.js) -->
     <script src="assets/three.min.js"></script>
-    <!-- OGL for CircularGallery -->
+    <!-- Splash Metaballs — liquid molecular spheres -->
+    <script src="metaballs-splash.js"></script>
+    <!-- OGL + CircularGallery (ESM) -->
     <script type="module">
         import * as OGL from 'https://unpkg.com/ogl@1.0.11/dist/ogl.esm.js';
         window.OGL = OGL;
+        // Load CircularGallery after OGL is ready
+        await import('./circular-gallery.js');
+        window.CircularGalleryReady = true;
     </script>
-    <!-- Splash Metaballs — liquid molecular spheres -->
-    <script src="metaballs-splash.js"></script>
-    <!-- CircularGallery -->
-    <script src="circular-gallery.js"></script>
 </head>
 <body>
     <a class="skip-link" href="#main">跳转到主要内容</a>
@@ -678,12 +679,28 @@
     </script>
 
     <!-- CircularGallery Init -->
-    <script>
-    (function() {
+    <script type="module">
+    (async function() {
+        // Wait for OGL and CircularGallery to be ready
+        async function waitForOGL(timeout = 10000) {
+            const start = Date.now();
+            while (Date.now() - start < timeout) {
+                if (window.OGL && window.CircularGallery) return true;
+                await new Promise(r => setTimeout(r, 50));
+            }
+            return false;
+        }
+
         // Wait for splash to finish then init gallery
-        function initGallery() {
+        async function initGallery() {
             const container = document.getElementById('circular-gallery-container');
-            if (!container || !window.CircularGallery) return;
+            if (!container) return;
+
+            const hasOGL = await waitForOGL();
+            if (!hasOGL || !window.CircularGallery) {
+                console.error('CircularGallery: OGL or CircularGallery not loaded');
+                return;
+            }
 
             const projectItems = [
                 { image: 'assets/project-bamboo-overview.jpg', text: '竹构美好' },
