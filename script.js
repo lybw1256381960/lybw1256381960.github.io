@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════════════
    林韦婧个人主页 — script.js v3
-   GSAP ScrollTrigger + Splash Liquid + 丰富交互动效
+   GSAP ScrollTrigger + Metaballs Splash + 丰富交互动效
    ═══════════════════════════════════════════════════════════════════════ */
 
 (function () {
@@ -41,7 +41,7 @@
       }, 950);
     }, 4500);
 
-    // Metaballs splash auto-initializes from metaballs-splash.js IIFE
+    // Metaballs splash auto-initializes from metaballs-splash.js IIFE (pure WebGL)
 
     // No GSAP — rely on timer fallback
     if (typeof gsap === 'undefined') return;
