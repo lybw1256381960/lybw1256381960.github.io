@@ -1,6 +1,6 @@
 /**
  * CircularGallery - Three.js implementation
- * Large, impactful cards with smooth curved layout
+ * Clean, focused layout with proper alignment
  */
 (function() {
   'use strict';
@@ -24,7 +24,7 @@
 
     fallbackToGrid: function(container, items) {
       container.innerHTML = '';
-      container.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; padding: 2rem;';
+      container.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; padding: 2rem;';
 
       const displayItems = items && items.length ? items : [
         { image: 'assets/project-bamboo-overview.jpg', text: '竹构美好' },
@@ -36,13 +36,13 @@
       displayItems.forEach(item => {
         const card = document.createElement('div');
         card.className = 'project-fallback-card';
-        card.style.cssText = 'background: rgba(255,255,255,0.8); backdrop-filter: blur(20px); border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.6); box-shadow: 0 12px 40px rgba(0,180,160,0.15); transition: transform 0.3s ease;';
+        card.style.cssText = 'background: rgba(255,255,255,0.85); backdrop-filter: blur(20px); border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.6); box-shadow: 0 12px 40px rgba(0,180,160,0.12); transition: transform 0.3s ease;';
         card.innerHTML = `
-          <div style="height: 220px; overflow: hidden;">
+          <div style="height: 240px; overflow: hidden;">
             <img src="${item.image}" alt="${item.text}" style="width: 100%; height: 100%; object-fit: cover;">
           </div>
-          <div style="padding: 1.25rem;">
-            <h4 style="margin: 0; color: #2d5a5a; font-size: 1.2rem; font-weight: 600;">${item.text}</h4>
+          <div style="padding: 1.5rem;">
+            <h4 style="margin: 0; color: #2d5a5a; font-size: 1.25rem; font-weight: 600;">${item.text}</h4>
           </div>
         `;
         container.appendChild(card);
@@ -55,21 +55,21 @@
       this.container = container;
       this.options = {
         items: options.items || [],
-        bend: options.bend || 1.5,
         textColor: options.textColor || '#2d5a5a',
-        borderRadius: options.borderRadius || 0.08,
-        scrollSpeed: options.scrollSpeed || 1.2,
-        scrollEase: options.scrollEase || 0.05
+        scrollSpeed: options.scrollSpeed || 1,
+        scrollEase: options.scrollEase || 0.06
       };
 
-      this.scroll = { current: 0, target: 0, velocity: 0 };
+      this.scroll = { current: 0, target: 0 };
       this.isDragging = false;
       this.startX = 0;
       this.scrollStart = 0;
-      this.cardWidth = 5;  // Larger cards
-      this.cardHeight = 3.5;
-      this.cardSpacing = 6; // More breathing room
-
+      
+      // Fixed layout parameters
+      this.cardWidth = 4.2;
+      this.cardHeight = 3;
+      this.cardGap = 0.6; // Small gap between cards
+      
       this.init();
     }
 
@@ -79,10 +79,10 @@
       // Scene
       this.scene = new THREE.Scene();
 
-      // Camera - wider FOV for more dramatic perspective
-      this.camera = new THREE.PerspectiveCamera(50, rect.width / rect.height, 0.1, 100);
-      this.camera.position.z = 12;
-      this.camera.position.y = 0.5;
+      // Camera - moderate FOV for natural perspective
+      this.camera = new THREE.PerspectiveCamera(45, rect.width / rect.height, 0.1, 100);
+      this.camera.position.z = 10;
+      this.camera.position.y = 0.3;
 
       // Renderer
       this.renderer = new THREE.WebGLRenderer({
@@ -95,13 +95,9 @@
       this.container.appendChild(this.renderer.domElement);
       this.renderer.domElement.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: grab;';
 
-      // Lighting for depth
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+      // Lighting
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
       this.scene.add(ambientLight);
-
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-      directionalLight.position.set(5, 5, 10);
-      this.scene.add(directionalLight);
 
       // Create cards
       this.createCards();
@@ -122,31 +118,27 @@
         { image: 'assets/project-drone-detail.jpg', text: '穿隧蜂', subtitle: '智能植保' }
       ];
 
-      // Only use original items, no duplication for cleaner look
       this.items = items;
       this.cards = [];
-      this.totalWidth = this.cardSpacing * this.items.length;
+      
+      // Calculate total width for centering
+      this.totalWidth = (this.cardWidth + this.cardGap) * this.items.length - this.cardGap;
 
       const loader = new THREE.TextureLoader();
 
       this.items.forEach((item, index) => {
-        // Card group
         const cardGroup = new THREE.Group();
 
-        // Card geometry with rounded corners feel via segments
-        const geometry = new THREE.PlaneGeometry(this.cardWidth, this.cardHeight, 1, 1);
-
-        // Load texture
+        // Card mesh
+        const geometry = new THREE.PlaneGeometry(this.cardWidth, this.cardHeight);
         const texture = loader.load(item.image,
           (tex) => {
             tex.colorSpace = THREE.SRGBColorSpace;
-            this.renderer.render(this.scene, this.camera);
           },
           undefined,
           () => this.createFallbackTexture(item, material)
         );
 
-        // Material
         const material = new THREE.MeshBasicMaterial({
           map: texture,
           transparent: true,
@@ -157,38 +149,36 @@
         mesh.userData = { index, item };
         cardGroup.add(mesh);
 
-        // Add subtle border/glow effect
-        const borderGeo = new THREE.PlaneGeometry(this.cardWidth + 0.1, this.cardHeight + 0.1);
-        const borderMat = new THREE.MeshBasicMaterial({
-          color: 0xffffff,
+        // Subtle shadow/depth layer
+        const shadowGeo = new THREE.PlaneGeometry(this.cardWidth + 0.08, this.cardHeight + 0.08);
+        const shadowMat = new THREE.MeshBasicMaterial({
+          color: 0x00b4a0,
           transparent: true,
-          opacity: 0.3
+          opacity: 0.08
         });
-        const borderMesh = new THREE.Mesh(borderGeo, borderMat);
-        borderMesh.position.z = -0.01;
-        cardGroup.add(borderMesh);
+        const shadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
+        shadowMesh.position.z = -0.02;
+        cardGroup.add(shadowMesh);
 
-        // Text label
+        // Text label - positioned directly below card
         const labelCanvas = document.createElement('canvas');
         labelCanvas.width = 512;
-        labelCanvas.height = 128;
+        labelCanvas.height = 100;
         const ctx = labelCanvas.getContext('2d');
-
-        // Clear
-        ctx.clearRect(0, 0, 512, 128);
+        ctx.clearRect(0, 0, 512, 100);
 
         // Main title
         ctx.fillStyle = this.options.textColor;
-        ctx.font = 'bold 36px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+        ctx.font = 'bold 32px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(item.text, 256, 45);
+        ctx.fillText(item.text, 256, 35);
 
         // Subtitle
         if (item.subtitle) {
           ctx.fillStyle = '#5a8a8a';
-          ctx.font = '24px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-          ctx.fillText(item.subtitle, 256, 85);
+          ctx.font = '20px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+          ctx.fillText(item.subtitle, 256, 70);
         }
 
         const labelTexture = new THREE.CanvasTexture(labelCanvas);
@@ -197,9 +187,9 @@
           map: labelTexture,
           transparent: true
         });
-        const labelGeometry = new THREE.PlaneGeometry(3, 0.75);
+        const labelGeometry = new THREE.PlaneGeometry(2.5, 0.5);
         const labelMesh = new THREE.Mesh(labelGeometry, labelMaterial);
-        labelMesh.position.y = -this.cardHeight / 2 - 0.6;
+        labelMesh.position.y = -this.cardHeight / 2 - 0.5;
         cardGroup.add(labelMesh);
 
         this.scene.add(cardGroup);
@@ -215,14 +205,12 @@
       canvas.height = 400;
       const ctx = canvas.getContext('2d');
 
-      // Gradient background
       const gradient = ctx.createLinearGradient(0, 0, 600, 400);
       gradient.addColorStop(0, '#e8f6f5');
       gradient.addColorStop(1, '#d0f0ec');
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, 600, 400);
 
-      // Text
       ctx.fillStyle = '#2d5a5a';
       ctx.font = 'bold 48px sans-serif';
       ctx.textAlign = 'center';
@@ -236,43 +224,44 @@
 
     updateCardPositions() {
       const viewportWidth = this.getViewportWidth();
-      const centerOffset = viewportWidth / 2;
-
+      
       this.cards.forEach((card, i) => {
-        // Calculate position with wrap-around for infinite scroll
-        let x = (i * this.cardSpacing) - this.scroll.current;
+        // Calculate base position
+        let x = (i * (this.cardWidth + this.cardGap)) - this.scroll.current;
+        
+        // Center the entire row
+        x -= this.totalWidth / 2;
+        x += this.cardWidth / 2;
 
-        // Normalize to center viewport
-        const halfTotal = this.totalWidth / 2;
-        while (x < -halfTotal - this.cardSpacing) x += this.totalWidth;
-        while (x > halfTotal + this.cardSpacing) x -= this.totalWidth;
+        // Wrap around for infinite scroll
+        const itemSpacing = this.cardWidth + this.cardGap;
+        const halfTotal = this.totalWidth / 2 + itemSpacing;
+        while (x < -halfTotal) x += this.totalWidth + itemSpacing;
+        while (x > halfTotal) x -= this.totalWidth + itemSpacing;
 
         // Position
         card.position.x = x;
-
-        // Apply smooth curve (bend effect)
-        const bendStrength = this.options.bend * 0.15;
-        const normalizedX = x / (viewportWidth / 2); // -1 to 1 range
-        const curveY = Math.pow(Math.abs(normalizedX), 2) * bendStrength;
-
-        card.position.y = -curveY;
-
-        // Rotation for 3D effect
-        const maxRotation = 0.25;
-        card.rotation.y = -normalizedX * maxRotation;
-        card.rotation.x = curveY * 0.1;
-
-        // Scale based on distance from center (center card is largest)
-        const distFromCenter = Math.abs(normalizedX);
-        const scale = 1 - distFromCenter * 0.15;
-        card.scale.setScalar(Math.max(0.7, scale));
-
-        // Opacity fade at edges
-        const opacity = Math.max(0.4, 1 - distFromCenter * 0.6);
+        
+        // Subtle curve - cards at edges tilt slightly inward
+        const normalizedX = x / (viewportWidth / 3);
+        const absNormX = Math.abs(normalizedX);
+        
+        // Very subtle Y curve (cards dip slightly at edges)
+        card.position.y = -absNormX * absNormX * 0.15;
+        
+        // Subtle rotation toward center
+        card.rotation.y = -normalizedX * 0.12;
+        
+        // Scale: center cards full size, edge cards slightly smaller
+        const scale = 1 - absNormX * 0.1;
+        card.scale.setScalar(Math.max(0.85, scale));
+        
+        // Opacity fade at far edges
+        const opacity = Math.max(0.5, 1 - absNormX * 0.4);
         card.children[0].material.opacity = opacity;
-
-        // Z-order: center cards in front
-        card.position.z = (1 - distFromCenter) * 2;
+        
+        // Z-order: center in front
+        card.position.z = (1 - absNormX) * 1.5;
       });
     }
 
@@ -284,7 +273,7 @@
     addEvents() {
       const canvas = this.renderer.domElement;
 
-      // Mouse/Touch
+      // Mouse
       canvas.addEventListener('mousedown', (e) => {
         this.isDragging = true;
         this.startX = e.clientX;
@@ -294,7 +283,7 @@
 
       window.addEventListener('mousemove', (e) => {
         if (!this.isDragging) return;
-        const delta = (e.clientX - this.startX) * 0.008 * this.options.scrollSpeed;
+        const delta = (e.clientX - this.startX) * 0.005 * this.options.scrollSpeed;
         this.scroll.target = this.scrollStart - delta;
       });
 
@@ -312,7 +301,7 @@
 
       window.addEventListener('touchmove', (e) => {
         if (!this.isDragging) return;
-        const delta = (e.touches[0].clientX - this.startX) * 0.008 * this.options.scrollSpeed;
+        const delta = (e.touches[0].clientX - this.startX) * 0.005 * this.options.scrollSpeed;
         this.scroll.target = this.scrollStart - delta;
       }, { passive: true });
 
@@ -322,7 +311,7 @@
 
       // Wheel
       canvas.addEventListener('wheel', (e) => {
-        this.scroll.target += e.deltaY * 0.003;
+        this.scroll.target += e.deltaY * 0.002;
       }, { passive: true });
 
       // Resize
@@ -332,46 +321,18 @@
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(rect.width, rect.height);
       });
-
-      // Auto-scroll hint animation
-      this.showScrollHint();
-    }
-
-    showScrollHint() {
-      // Subtle auto-scroll on first view
-      setTimeout(() => {
-        if (!this.isDragging) {
-          const hintScroll = this.scroll.target + 2;
-          const start = this.scroll.target;
-          const startTime = Date.now();
-          const duration = 800;
-
-          const animateHint = () => {
-            const elapsed = Date.now() - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            const ease = 1 - Math.pow(1 - progress, 3);
-
-            this.scroll.target = start + (hintScroll - start) * ease;
-
-            if (progress < 1 && !this.isDragging) {
-              requestAnimationFrame(animateHint);
-            }
-          };
-          animateHint();
-        }
-      }, 1500);
     }
 
     animate() {
       requestAnimationFrame(() => this.animate());
 
-      // Smooth scroll with velocity
+      // Smooth scroll
       const diff = this.scroll.target - this.scroll.current;
-      this.scroll.velocity = diff * this.options.scrollEase;
-      this.scroll.current += this.scroll.velocity;
+      this.scroll.current += diff * this.options.scrollEase;
 
       this.updateCardPositions();
       this.renderer.render(this.scene, this.camera);
     }
   }
 })();
+// v2 1783587799
