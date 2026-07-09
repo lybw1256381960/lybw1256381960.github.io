@@ -27,7 +27,10 @@
     <!-- Three.js (required by liquid-ether.js) -->
     <script src="assets/three.min.js"></script>
     <!-- OGL for CircularGallery -->
-    <script src="https://unpkg.com/ogl@1.0.11/dist/ogl.umd.js"></script>
+    <script type="module">
+        import * as OGL from 'https://unpkg.com/ogl@1.0.11/dist/ogl.esm.js';
+        window.OGL = OGL;
+    </script>
     <!-- Splash Metaballs — liquid molecular spheres -->
     <script src="metaballs-splash.js"></script>
     <!-- CircularGallery -->
