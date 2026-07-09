@@ -19,29 +19,43 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <script>document.documentElement.classList.add("js");</script>
-    <!-- Splash Liquid Ether — full-screen canvas overlay -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Framer Motion + React for cinematic animations -->
+    <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+    <script src="https://unpkg.com/framer-motion@11.11.17/dist/framer-motion.js"></script>
+    <!-- Three.js (required by liquid-ether.js) -->
+    <script src="assets/three.min.js"></script>
+    <!-- Splash Metaballs — liquid molecular spheres -->
+    <script src="metaballs-splash.js"></script>
 </head>
 <body>
     <a class="skip-link" href="#main">跳转到主要内容</a>
+    <div class="scroll-progress" id="scroll-progress"></div>
 
     <!-- ═══════════════════════════════════════════════
-         SPLASH SCREEN — Liquid Ether 开屏
+         SPLASH SCREEN — 液态分子球 Metaballs 开屏
          ═══════════════════════════════════════════════ -->
     <div class="splash" id="splash" aria-hidden="true">
         <canvas id="splash-canvas" width="1440" height="900"></canvas>
-        <div class="splash-inner">
-            <div class="splash-logo-wrap">
-                <span class="splash-char" data-char="L">L</span>
-                <span class="splash-char" data-char="W">W</span>
-                <span class="splash-char" data-char="J">J</span>
-            </div>
+
+        <!-- 中央品牌标识 -->
+        <div class="splash-brand">
+            <span class="splash-brand-mark">LWJ</span>
+            <span class="splash-brand-line"></span>
+        </div>
+
+        <!-- 底部文字 -->
+        <div class="splash-bottom">
             <p class="splash-tagline">
                 <span class="splash-tagline-line">Service Design</span>
                 <span class="splash-tagline-sep">·</span>
                 <span class="splash-tagline-line">User Research</span>
             </p>
-            <div class="splash-progress"><div class="splash-progress-bar" id="splash-progress"></div></div>
+            <div class="splash-progress">
+                <div class="splash-progress-bar" id="splash-progress"></div>
+                <div class="splash-progress-shine"></div>
+            </div>
         </div>
     </div>
 
@@ -93,11 +107,12 @@
                         <span>广东工业大学 · 25级研究生</span>
                     </div>
 
+                    <p class="hero-eyebrow">Portfolio of</p>
                     <h1 id="hero-title" class="hero-title">
                         <span class="hero-title-line">林韦婧</span>
                     </h1>
-
                     <p class="hero-role">服务设计 &amp; 用户研究</p>
+                    <p class="hero-en">Service &amp; Experience Design</p>
 
                     <p class="hero-lead">
                         以研究驱动设计，用系统思维连接真实需求与可持续体验。<br>
@@ -115,20 +130,20 @@
                         </a>
                     </div>
 
-                    <!-- 小标签云 -->
+                    <!-- 小标签云 (Liquid Pills) -->
                     <div class="hero-tags">
-                        <span>服务设计</span>
-                        <span>用户研究</span>
-                        <span>UX Design</span>
-                        <span>可持续产品</span>
-                        <span>非遗活化</span>
+                        <span class="liquid-pill" data-animate="fade-in" data-delay="0.8">服务设计</span>
+                        <span class="liquid-pill" data-animate="fade-in" data-delay="0.85">用户研究</span>
+                        <span class="liquid-pill" data-animate="fade-in" data-delay="0.9">UX Design</span>
+                        <span class="liquid-pill" data-animate="fade-in" data-delay="0.95">可持续产品</span>
+                        <span class="liquid-pill" data-animate="fade-in" data-delay="1.0">非遗活化</span>
                     </div>
                 </div>
 
-                <!-- 右：Bento 风格信息卡片 -->
-                <div class="hero-bento">
+                <!-- 右：Bento 风格信息卡片 (Liquid Glass) -->
+                <div class="hero-bento" id="hero-bento">
                     <!-- 主图卡片 -->
-                    <div class="bento-card bento-main glass-panel" data-tilt>
+                    <div class="bento-card bento-main liquid-glass" data-tilt data-animate="fade-up" data-delay="0.2">
                         <img src="assets/portfolio-cover.jpg" alt="林韦婧作品集封面" loading="eager">
                         <div class="bento-main-overlay">
                             <span class="bento-main-label">Portfolio 2026</span>
@@ -136,7 +151,7 @@
                     </div>
 
                     <!-- 头像卡片 -->
-                    <div class="bento-card bento-avatar glass-panel" data-tilt>
+                    <div class="bento-card bento-avatar liquid-glass" data-tilt data-animate="fade-up" data-delay="0.3">
                         <img src="assets/lwj-avatar.jpg" alt="林韦婧" loading="eager">
                         <div class="bento-avatar-info">
                             <strong>林韦婧</strong>
@@ -145,20 +160,20 @@
                     </div>
 
                     <!-- 数字指标卡 -->
-                    <div class="bento-card bento-stat glass-panel" data-tilt>
+                    <div class="bento-card bento-stat liquid-glass" data-tilt data-animate="fade-up" data-delay="0.4">
                         <span class="bento-stat-num" data-count="4">0</span>
                         <span class="bento-stat-label">核心项目</span>
                     </div>
 
                     <!-- 排名卡 -->
-                    <div class="bento-card bento-rank glass-panel" data-tilt>
+                    <div class="bento-card bento-rank liquid-glass" data-tilt data-animate="fade-up" data-delay="0.5">
                         <span class="bento-stat-num" data-count="1">0</span>
                         <span class="bento-stat-label">本科综合排名</span>
                         <small>1 / 58</small>
                     </div>
 
                     <!-- 状态卡 -->
-                    <div class="bento-card bento-status glass-panel" data-tilt>
+                    <div class="bento-card bento-status liquid-glass" data-tilt data-animate="fade-up" data-delay="0.6">
                         <span class="badge-dot active"></span>
                         <span>25级研究生 · 广工大</span>
                     </div>
@@ -214,7 +229,7 @@
                 <p>从产品设计到服务设计，我关注的是"为什么"，以及设计如何真正进入真实系统。</p>
             </div>
             <div class="about-grid">
-                <article class="glass-panel about-story" data-tilt>
+                <article class="liquid-glass about-story" data-tilt>
                     <div class="about-story-header">
                         <span class="about-icon">✦</span>
                         <h3>研究型设计学习者</h3>
@@ -229,22 +244,22 @@
                     </div>
                 </article>
                 <div class="focus-list">
-                    <span class="focus-item glass-panel" data-tilt>
+                    <span class="focus-item liquid-glass" data-tilt>
                         <i class="focus-icon">◈</i>用户访谈与需求洞察
                     </span>
-                    <span class="focus-item glass-panel" data-tilt>
+                    <span class="focus-item liquid-glass" data-tilt>
                         <i class="focus-icon">◈</i>服务蓝图与用户旅程
                     </span>
-                    <span class="focus-item glass-panel" data-tilt>
+                    <span class="focus-item liquid-glass" data-tilt>
                         <i class="focus-icon">◈</i>系统设计与触点规划
                     </span>
-                    <span class="focus-item glass-panel" data-tilt>
+                    <span class="focus-item liquid-glass" data-tilt>
                         <i class="focus-icon">◈</i>可持续产品与CMF
                     </span>
-                    <span class="focus-item glass-panel" data-tilt>
+                    <span class="focus-item liquid-glass" data-tilt>
                         <i class="focus-icon">◈</i>数字服务生态
                     </span>
-                    <span class="focus-item glass-panel" data-tilt>
+                    <span class="focus-item liquid-glass" data-tilt>
                         <i class="focus-icon">◈</i>跨学科协作落地
                     </span>
                 </div>
@@ -261,7 +276,7 @@
                 <p>工业设计工程为研究主线，产品设计为方法基础。</p>
             </div>
             <div class="timeline">
-                <article class="glass-panel timeline-card" data-tilt>
+                <article class="liquid-glass timeline-card" data-tilt>
                     <div class="timeline-dot"></div>
                     <span class="period">2025.09 — 至今</span>
                     <h3>广东工业大学</h3>
@@ -271,7 +286,7 @@
                         <span>服务设计</span><span>用户研究</span><span>数智系统</span>
                     </div>
                 </article>
-                <article class="glass-panel timeline-card" data-tilt>
+                <article class="liquid-glass timeline-card" data-tilt>
                     <div class="timeline-dot"></div>
                     <span class="period">2021.09 — 2025.06</span>
                     <h3>福建理工大学</h3>
@@ -294,7 +309,7 @@
                 <p>在企业设计、组织协作和项目管理中积累真实问题处理经验。</p>
             </div>
             <div class="experience-grid">
-                <article class="glass-panel experience-card" data-tilt>
+                <article class="liquid-glass experience-card" data-tilt>
                     <div class="card-meta">
                         <span class="period">2023.07 — 2023.08</span>
                         <strong class="role-tag">产品外观设计</strong>
@@ -305,7 +320,7 @@
                         <li>提供 50 余套产品外观设计方案，支持方案比选与后续深化。</li>
                     </ul>
                 </article>
-                <article class="glass-panel experience-card" data-tilt>
+                <article class="liquid-glass experience-card" data-tilt>
                     <div class="card-meta">
                         <span class="period">2023.06 — 2024.09</span>
                         <strong class="role-tag">执行主席</strong>
@@ -329,17 +344,17 @@
                 <p>围绕"研究、策略、原型、表达、验证"展开。</p>
             </div>
             <div class="skills-grid">
-                <article class="glass-panel skill-card skill-featured" data-tilt>
+                <article class="liquid-glass skill-card skill-featured" data-tilt>
                     <div class="skill-icon-lg">🔍</div>
                     <h3>用户研究与服务设计</h3>
                     <p>用户访谈、问卷调研、竞品分析、需求分层、用户画像、用户旅程、服务蓝图、触点规划。</p>
                 </article>
-                <article class="glass-panel skill-card" data-tilt>
+                <article class="liquid-glass skill-card" data-tilt>
                     <div class="skill-icon">🎨</div>
                     <h3>产品与交互表达</h3>
                     <p>产品概念推导、CMF分析、信息架构、流程图、低/高保真原型。</p>
                 </article>
-                <article class="glass-panel skill-card skill-tools" data-tilt>
+                <article class="liquid-glass skill-card skill-tools" data-tilt>
                     <h3>软件工具</h3>
                     <div class="tool-bars">
                         <div class="tool-item">
@@ -360,7 +375,7 @@
                         </div>
                     </div>
                 </article>
-                <article class="glass-panel skill-card" data-tilt>
+                <article class="liquid-glass skill-card" data-tilt>
                     <div class="skill-icon">💡</div>
                     <h3>数字服务与协作</h3>
                     <p>AI/IoT数字服务生态、NFC交互、数据分析基础、项目汇报、团队协作。</p>
@@ -379,51 +394,51 @@
             </div>
             <!-- 项目图片网格 -->
             <div class="projects-photo-grid">
-                <div class="project-photo-card glass-panel" data-tilt>
+                <div class="project-photo-card liquid-glass" data-tilt data-animate="fade-up" data-delay="0.1">
                     <div class="project-photo-img" style="background-image:url('assets/project-bamboo-overview.jpg')"></div>
                     <div class="project-photo-overlay">
-                        <span class="tag-primary">服务设计</span>
+                        <span class="liquid-pill">服务设计</span>
                         <h3>竹构美好</h3>
                         <p>竹艺数智服务系统</p>
                         <div class="project-photo-awards">
-                            <span>大广赛二等奖</span><span>iCCA铜奖</span><span>NCDA国奖</span>
+                            <span class="liquid-pill">大广赛二等奖</span><span class="liquid-pill">iCCA铜奖</span><span class="liquid-pill">NCDA国奖</span>
                         </div>
                     </div>
                 </div>
-                <div class="project-photo-card project-photo-card--tall glass-panel" data-tilt>
+                <div class="project-photo-card project-photo-card--tall liquid-glass" data-tilt data-animate="fade-up" data-delay="0.15">
                     <div class="project-photo-img" style="background-image:url('assets/project-bamboo-detail.jpg')"></div>
                     <div class="project-photo-overlay">
-                        <span class="tag-primary">服务设计</span>
+                        <span class="liquid-pill">服务设计</span>
                         <h3>竹构美好</h3>
                         <p>数字化触点界面</p>
                     </div>
                 </div>
-                <div class="project-photo-card glass-panel" data-tilt>
+                <div class="project-photo-card liquid-glass" data-tilt data-animate="fade-up" data-delay="0.2">
                     <div class="project-photo-img" style="background-image:url('assets/project-secondlife-detail.jpg')"></div>
                     <div class="project-photo-overlay">
-                        <span class="tag-primary">产品设计</span>
+                        <span class="liquid-pill">产品设计</span>
                         <h3>第二次生命</h3>
                         <p>可降解花盆包装</p>
                         <div class="project-photo-awards">
-                            <span>泰隆杯银奖</span><span>DOA二等奖</span>
+                            <span class="liquid-pill">泰隆杯银奖</span><span class="liquid-pill">DOA二等奖</span>
                         </div>
                     </div>
                 </div>
-                <div class="project-photo-card glass-panel" data-tilt>
+                <div class="project-photo-card liquid-glass" data-tilt data-animate="fade-up" data-delay="0.25">
                     <div class="project-photo-img" style="background-image:url('assets/project-maigua-detail.jpg')"></div>
                     <div class="project-photo-overlay">
-                        <span class="tag-primary">产品设计</span>
+                        <span class="liquid-pill">产品设计</span>
                         <h3>变卦</h3>
                         <p>儿童益智棋</p>
                         <div class="project-photo-awards">
-                            <span>教育装备展银奖</span>
+                            <span class="liquid-pill">教育装备展银奖</span>
                         </div>
                     </div>
                 </div>
-                <div class="project-photo-card glass-panel" data-tilt>
+                <div class="project-photo-card liquid-glass" data-tilt data-animate="fade-up" data-delay="0.3">
                     <div class="project-photo-img" style="background-image:url('assets/project-drone-detail.jpg')"></div>
                     <div class="project-photo-overlay">
-                        <span class="tag-primary">产品设计</span>
+                        <span class="liquid-pill">产品设计</span>
                         <h3>穿隧蜂</h3>
                         <p>智能植保无人机</p>
                     </div>
@@ -433,20 +448,20 @@
             <!-- 项目文字信息 -->
             <div class="projects-detail-row">
                 <div class="projects-detail-grid">
-                    <div class="glass-panel project-detail-card" data-tilt>
-                        <span class="tag-primary">服务设计</span>
+                    <div class="liquid-glass project-detail-card" data-tilt data-animate="fade-up" data-delay="0.1">
+                        <span class="liquid-pill">服务设计</span>
                         <h3>竹构美好：竹艺数智服务系统</h3>
                         <p>围绕传统竹艺的数字化传承与服务创新，构建资料库、云端博物馆、AI竹艺编辑器和3D智能扫描等触点。</p>
                         <div class="project-awards">
-                            <span>大广赛二等奖</span><span>iCCA铜奖</span><span>NCDA国奖</span>
+                            <span class="liquid-pill">大广赛二等奖</span><span class="liquid-pill">iCCA铜奖</span><span class="liquid-pill">NCDA国奖</span>
                         </div>
                     </div>
-                    <div class="glass-panel project-detail-card" data-tilt>
-                        <span class="tag-primary">产品设计</span>
+                    <div class="liquid-glass project-detail-card" data-tilt data-animate="fade-up" data-delay="0.2">
+                        <span class="liquid-pill">产品设计</span>
                         <h3>第二次生命 · 变卦 · 穿隧蜂</h3>
                         <p>可持续花盆包装、NFC儿童教具、智能农业无人机——从材料到交互的系统性产品设计实践。</p>
                         <div class="project-awards">
-                            <span>泰隆杯银奖</span><span>DOA二等奖</span><span>教育装备展银奖</span>
+                            <span class="liquid-pill">泰隆杯银奖</span><span class="liquid-pill">DOA二等奖</span><span class="liquid-pill">教育装备展银奖</span>
                         </div>
                     </div>
                 </div>
@@ -463,27 +478,27 @@
                 <p>竞赛、研究与校园实践共同构成持续成长的证据链。</p>
             </div>
             <div class="awards-grid">
-                <article class="glass-panel award-card award-featured" data-tilt>
+                <article class="liquid-glass award-card award-featured" data-tilt>
                     <div class="award-level">🏆 国家级</div>
                     <h3>大广赛 · 全国二等奖</h3>
                     <p>竹构美好 — 非遗数字化服务系统</p>
                 </article>
-                <article class="glass-panel award-card" data-tilt>
+                <article class="liquid-glass award-card" data-tilt>
                     <div class="award-level">🥉 国家级</div>
                     <h3>NCDA · 国家奖</h3>
                     <p>竹构美好 — 数字创意作品</p>
                 </article>
-                <article class="glass-panel award-card" data-tilt>
+                <article class="liquid-glass award-card" data-tilt>
                     <div class="award-level">🥈 省级</div>
                     <h3>泰隆杯 · 银奖</h3>
                     <p>第二次生命 — 可持续包装</p>
                 </article>
-                <article class="glass-panel award-card" data-tilt>
+                <article class="liquid-glass award-card" data-tilt>
                     <div class="award-level">🥈 省级</div>
                     <h3>iCCA · 铜奖</h3>
                     <p>竹构美好 — 服务设计</p>
                 </article>
-                <article class="glass-panel award-card award-wide" data-tilt>
+                <article class="liquid-glass award-card award-wide" data-tilt>
                     <div class="award-level">📄 学术</div>
                     <h3>RCCSE 核心期刊</h3>
                     <p>竹集成材表面色彩感性意象量化研究</p>
@@ -502,21 +517,21 @@
             </div>
             <div class="contact-grid">
                 <div class="contact-cards">
-                    <a class="glass-panel contact-card" href="mailto:1256381960@qq.com" data-tilt>
+                    <a class="liquid-glass contact-card" href="mailto:1256381960@qq.com" data-tilt>
                         <div class="contact-icon">✉</div>
                         <div>
                             <strong>邮箱</strong>
                             <span>1256381960@qq.com</span>
                         </div>
                     </a>
-                    <a class="glass-panel contact-card" href="https://lybw1256381960.github.io/" target="_blank" rel="noopener" data-tilt>
+                    <a class="liquid-glass contact-card" href="https://lybw1256381960.github.io/" target="_blank" rel="noopener" data-tilt>
                         <div class="contact-icon">◈</div>
                         <div>
                             <strong>个人网站</strong>
                             <span>lybw1256381960.github.io</span>
                         </div>
                     </a>
-                    <a class="glass-panel contact-card" href="https://github.com/lybw1256381960" target="_blank" rel="noopener" data-tilt>
+                    <a class="liquid-glass contact-card" href="https://github.com/lybw1256381960" target="_blank" rel="noopener" data-tilt>
                         <div class="contact-icon">◎</div>
                         <div>
                             <strong>GitHub</strong>
@@ -524,7 +539,7 @@
                         </div>
                     </a>
                 </div>
-                <form class="glass-panel contact-form" id="contact-form" novalidate>
+                <form class="liquid-glass contact-form" id="contact-form" novalidate>
                     <div class="form-row">
                         <label for="cf-name">姓名</label>
                         <input type="text" id="cf-name" name="name" placeholder="你的名字" required>
@@ -554,9 +569,156 @@
     <!-- Scripts -->
     <script src="assets/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-    <script src="assets/ogl.min.js"></script>
     <script src="liquid-ether.js"></script>
     <script src="splash-liquid.js"></script>
     <script src="script.js"></script>
+
+    <!-- Framer Motion Entrance Animations -->
+    <script type="text/babel">
+    const { motion, useInView } = window.Motion || {};
+    const { useEffect, useRef, useState } = React;
+
+    // Fade up animation component
+    function FadeUp({ children, delay = 0, className = '' }) {
+        const ref = useRef(null);
+        const isInView = useInView(ref, { once: true, margin: "-50px" });
+        return (
+            <motion.div
+                ref={ref}
+                className={className}
+                initial={{ opacity: 0, y: 40, filter: 'blur(10px)' }}
+                animate={isInView ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}}
+                transition={{ duration: 0.8, delay, ease: [0.22, 0.61, 0.36, 1] }}
+            >
+                {children}
+            </motion.div>
+        );
+    }
+
+    // Stagger container for children
+    function StaggerContainer({ children, className = '', staggerDelay = 0.1 }) {
+        const ref = useRef(null);
+        const isInView = useInView(ref, { once: true, margin: "-100px" });
+        return (
+            <motion.div
+                ref={ref}
+                className={className}
+                initial="hidden"
+                animate={isInView ? "visible" : "hidden"}
+                variants={{
+                    hidden: {},
+                    visible: { transition: { staggerChildren: staggerDelay } }
+                }}
+            >
+                {children}
+            </motion.div>
+        );
+    }
+
+    function StaggerItem({ children, className = '' }) {
+        return (
+            <motion.div
+                className={className}
+                variants={{
+                    hidden: { opacity: 0, y: 30, filter: 'blur(8px)' },
+                    visible: { opacity: 1, y: 0, filter: 'blur(0px)' }
+                }}
+                transition={{ duration: 0.6, ease: [0.22, 0.61, 0.36, 1] }}
+            >
+                {children}
+            </motion.div>
+        );
+    }
+
+    // Animated counter component
+    function AnimatedCounter({ target, suffix = '', duration = 2 }) {
+        const [count, setCount] = useState(0);
+        const ref = useRef(null);
+        const isInView = useInView(ref, { once: true });
+
+        useEffect(() => {
+            if (!isInView) return;
+            let startTime = null;
+            const animate = (timestamp) => {
+                if (!startTime) startTime = timestamp;
+                const progress = Math.min((timestamp - startTime) / (duration * 1000), 1);
+                const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+                setCount(Math.floor(eased * target));
+                if (progress < 1) requestAnimationFrame(animate);
+            };
+            requestAnimationFrame(animate);
+        }, [isInView, target, duration]);
+
+        return <span ref={ref}>{count}{suffix}</span>;
+    }
+
+    // Apply animations to existing DOM elements
+    function App() {
+        useEffect(() => {
+            // Animate hero content
+            const heroCopy = document.querySelector('.hero-copy');
+            if (heroCopy) {
+                heroCopy.style.opacity = '0';
+                setTimeout(() => {
+                    heroCopy.style.transition = 'opacity 0.8s cubic-bezier(0.22, 0.61, 0.36, 1), transform 0.8s cubic-bezier(0.22, 0.61, 0.36, 1), filter 0.8s';
+                    heroCopy.style.opacity = '1';
+                }, 100);
+            }
+
+            // Animate bento cards with stagger
+            const cards = document.querySelectorAll('.hero-bento .liquid-glass');
+            cards.forEach((card, i) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(40px)';
+                setTimeout(() => {
+                    card.style.transition = 'opacity 0.8s cubic-bezier(0.22, 0.61, 0.36, 1), transform 0.8s cubic-bezier(0.22, 0.61, 0.36, 1), filter 0.8s';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 400 + i * 120);
+            });
+
+            // Animate liquid pills (hero only, not project cards)
+            const heroPills = document.querySelectorAll('.hero-tags .liquid-pill');
+            heroPills.forEach((pill, i) => {
+                pill.style.opacity = '0';
+                pill.style.transform = 'scale(0.9)';
+                setTimeout(() => {
+                    pill.style.transition = 'opacity 0.5s cubic-bezier(0.22, 0.61, 0.36, 1), transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                    pill.style.opacity = '1';
+                    pill.style.transform = 'scale(1)';
+                }, 800 + i * 60);
+            });
+
+            // Intersection Observer for scroll-triggered animations
+            const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const el = entry.target;
+                        const delay = parseFloat(el.dataset.delay) || 0;
+                        setTimeout(() => {
+                            el.style.transition = 'opacity 0.8s cubic-bezier(0.22, 0.61, 0.36, 1), transform 0.8s cubic-bezier(0.22, 0.61, 0.36, 1), filter 0.8s';
+                            el.style.opacity = '1';
+                            el.style.transform = 'translateY(0)';
+                        }, delay * 1000);
+                        observer.unobserve(el);
+                    }
+                });
+            }, observerOptions);
+
+            // Observe all elements with data-animate
+            document.querySelectorAll('[data-animate="fade-up"]').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(40px)';
+                observer.observe(el);
+            });
+        }, []);
+
+        return null;
+    }
+
+    const root = ReactDOM.createRoot(document.createElement('div'));
+    root.render(<App />);
+    </script>
 </body>
 </html>

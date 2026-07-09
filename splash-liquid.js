@@ -22,9 +22,10 @@
     SPLAT_COUNT:  3,      // per event
     DISPLAY_WIDTH:  window.innerWidth,
     DISPLAY_HEIGHT: window.innerHeight,
-    SIM_WIDTH:  Math.floor(window.innerWidth  * CONFIG.RESOLUTION),
-    SIM_HEIGHT: Math.floor(window.innerHeight * CONFIG.RESOLUTION),
   };
+  // 计算派生尺寸（在 CONFIG 定义之后）
+  CONFIG.SIM_WIDTH  = Math.floor(window.innerWidth  * CONFIG.RESOLUTION);
+  CONFIG.SIM_HEIGHT = Math.floor(window.innerHeight * CONFIG.RESOLUTION);
 
   const PALETTE = [
     [0x00, 0x7a, 0x8a],   // #007a8a deep teal

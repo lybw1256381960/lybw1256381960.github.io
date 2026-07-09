@@ -1050,7 +1050,7 @@
     wrapper.style.width = '100vw';
     wrapper.style.height = '100vh';
     wrapper.style.overflow = 'hidden';
-    wrapper.style.zIndex = '-1';
+    wrapper.style.zIndex = '0';
     wrapper.style.pointerEvents = 'none';
     canvas.parentNode.insertBefore(wrapper, canvas);
     wrapper.appendChild(canvas);
@@ -1080,7 +1080,7 @@
       webgl.start();
       console.log('LiquidEther: Navier-Stokes fluid simulation initialized');
     } catch (e) {
-      console.warn('LiquidEther init failed:', e);
+      console.error('LiquidEther init failed:', e);
     }
   }
 

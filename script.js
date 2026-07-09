@@ -31,7 +31,7 @@
     const splash = $('#splash');
     if (!splash) return;
 
-    // ── Hard fallback: always hide splash after max 4s ──
+    // ── Hard fallback: always hide splash after max 4.5s ──
     const splashTimer = setTimeout(() => {
       splash.style.opacity = '0';
       splash.style.transition = 'opacity 0.9s ease';
@@ -39,19 +39,9 @@
         splash.style.display = 'none';
         splash.setAttribute('aria-hidden', 'true');
       }, 950);
-    }, 4000);
+    }, 4500);
 
-    let splashLiquid;
-
-    // Init splash liquid
-    try {
-      if (typeof SplashLiquid !== 'undefined') {
-        splashLiquid = new SplashLiquid('splash-canvas');
-        try { splashLiquid.start(); } catch (e2) { console.warn('SplashLiquid.start failed:', e2); }
-      }
-    } catch (e) {
-      console.warn('SplashLiquid init failed:', e);
-    }
+    // Metaballs splash auto-initializes from metaballs-splash.js IIFE
 
     // No GSAP — rely on timer fallback
     if (typeof gsap === 'undefined') return;
@@ -69,14 +59,14 @@
           onComplete: () => {
             splash.style.display = 'none';
             splash.setAttribute('aria-hidden', 'true');
-            if (splashLiquid) splashLiquid.stop();
+            window.dispatchEvent(new Event('splashHidden'));
           }
         });
       }
     });
 
-    // Wait for progress bar to complete + a bit extra
-    tl.to({}, { duration: 2.8 });
+    // Wait for metaballs animation + brand reveal + progress
+    tl.to({}, { duration: 3.0 });
 
     // Animate progress bar
     if (progress) {
@@ -86,12 +76,7 @@
       );
     }
 
-    // Mouse interaction on splash canvas
-    if (splashLiquid) {
-      splash.addEventListener('mousemove', (e) => {
-        splashLiquid.splatEvent(e);
-      });
-    }
+    // Metaballs handles mouse interaction internally
   }
 
   /* ── 3. Main Liquid Ether ──────────────────────────────────── */
@@ -155,30 +140,42 @@
     const counters = $$('[data-count]');
     if (!counters.length) return;
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
-        observer.unobserve(entry.target);
-
-        const el = entry.target;
-        const target = parseInt(el.dataset.count, 10);
-        const obj = { val: 0 };
-
-        gsap.to(obj, {
-          val: target,
-          duration: 1.6,
-          ease: 'power2.out',
-          onUpdate() {
-            el.textContent = Math.round(obj.val);
-          },
-          onComplete() {
-            el.textContent = target;
-          }
-        });
+    const animate = (el) => {
+      const target = parseInt(el.dataset.count, 10);
+      const obj = { val: 0 };
+      gsap.to(obj, {
+        val: target,
+        duration: 1.6,
+        ease: 'power2.out',
+        onUpdate() {
+          el.textContent = Math.round(obj.val);
+        },
+        onComplete() {
+          el.textContent = target;
+        }
       });
-    }, { threshold: 0.5 });
+    };
 
-    counters.forEach(c => observer.observe(c));
+    // Use IntersectionObserver when available, but also kick off after splash hides
+    // (headless / hidden contexts often don't fire IO reliably)
+    let triggered = false;
+    const fire = () => {
+      if (triggered) return;
+      triggered = true;
+      counters.forEach(animate);
+    };
+
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        if (entries.some(e => e.isIntersecting)) fire();
+      }, { threshold: 0.05 });
+      counters.forEach(c => observer.observe(c));
+    } else {
+      fire();
+    }
+
+    // Backup: fire after splash should have hidden (~3.2s) regardless of IO
+    setTimeout(fire, 3200);
   }
 
   /* ── 7. IntersectionObserver Reveals ───────────────────────── */
@@ -387,23 +384,11 @@
 
   /* ── 14. Scroll Progress Bar ──────────────────────────────── */
   function initScrollProgress() {
-    const bar = document.createElement('div');
-    bar.id = 'scroll-progress';
-    Object.assign(bar.style, {
-      position: 'fixed',
-      top: '0', left: '0',
-      height: '3px',
-      background: 'var(--grad-soft)',
-      width: '0%',
-      zIndex: '9998',
-      transition: 'width 0.05s linear',
-      borderRadius: '0 2px 2px 0',
-    });
-    document.body.appendChild(bar);
-
+    const bar = document.getElementById('scroll-progress');
+    if (!bar) return;
     window.addEventListener('scroll', () => {
       const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
-      bar.style.width = `${clamp(pct, 0, 100)}%`;
+      bar.style.transform = `scaleX(${clamp(pct / 100, 0, 1)})`;
     }, { passive: true });
   }
 
