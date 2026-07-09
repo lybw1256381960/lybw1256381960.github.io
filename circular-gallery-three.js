@@ -1,74 +1,42 @@
 /**
- * CircularGallery - Three.js implementation
- * Clean, focused layout with proper alignment
+ * ScrollHorizontalGallery - 滚动驱动的水平卡片画廊
+ * 用户向下滚动页面时，卡片水平移动
  */
 (function() {
   'use strict';
 
-  window.CircularGallery = {
+  window.ScrollHorizontalGallery = {
     init: function(container, options) {
       if (!window.THREE) {
-        console.error('CircularGallery: THREE not loaded');
-        this.fallbackToGrid(container, options.items);
+        console.error('ScrollHorizontalGallery: THREE not loaded');
         return null;
       }
-
       try {
-        return new GalleryApp(container, options);
+        return new ScrollGallery(container, options);
       } catch (e) {
-        console.error('CircularGallery init failed:', e);
-        this.fallbackToGrid(container, options.items);
+        console.error('ScrollHorizontalGallery init failed:', e);
         return null;
       }
-    },
-
-    fallbackToGrid: function(container, items) {
-      container.innerHTML = '';
-      container.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; padding: 2rem;';
-
-      const displayItems = items && items.length ? items : [
-        { image: 'assets/project-bamboo-overview.jpg', text: '竹构美好' },
-        { image: 'assets/project-secondlife-detail.jpg', text: '第二次生命' },
-        { image: 'assets/project-maigua-detail.jpg', text: '变卦' },
-        { image: 'assets/project-drone-detail.jpg', text: '穿隧蜂' }
-      ];
-
-      displayItems.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'project-fallback-card';
-        card.style.cssText = 'background: rgba(255,255,255,0.85); backdrop-filter: blur(20px); border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.6); box-shadow: 0 12px 40px rgba(0,180,160,0.12); transition: transform 0.3s ease;';
-        card.innerHTML = `
-          <div style="height: 240px; overflow: hidden;">
-            <img src="${item.image}" alt="${item.text}" style="width: 100%; height: 100%; object-fit: cover;">
-          </div>
-          <div style="padding: 1.5rem;">
-            <h4 style="margin: 0; color: #2d5a5a; font-size: 1.25rem; font-weight: 600;">${item.text}</h4>
-          </div>
-        `;
-        container.appendChild(card);
-      });
     }
   };
 
-  class GalleryApp {
+  class ScrollGallery {
     constructor(container, options) {
       this.container = container;
       this.options = {
         items: options.items || [],
         textColor: options.textColor || '#2d5a5a',
-        scrollSpeed: options.scrollSpeed || 1,
-        scrollEase: options.scrollEase || 0.06
+        scrollMultiplier: options.scrollMultiplier || 1.5
       };
 
-      this.scroll = { current: 0, target: 0 };
-      this.isDragging = false;
-      this.startX = 0;
-      this.scrollStart = 0;
+      this.scrollProgress = 0; // 0 到 1，由页面滚动驱动
+      this.targetProgress = 0;
+      this.isInView = false;
       
-      // Fixed layout parameters
-      this.cardWidth = 4.2;
-      this.cardHeight = 3;
-      this.cardGap = 0.6; // Small gap between cards
+      // Fixed card layout
+      this.cardWidth = 3.8;
+      this.cardHeight = 2.6;
+      this.cardGap = 0.5;
       
       this.init();
     }
@@ -78,13 +46,14 @@
 
       // Scene
       this.scene = new THREE.Scene();
+      this.scene.background = null;
 
-      // Camera - moderate FOV for natural perspective
+      // Camera
       this.camera = new THREE.PerspectiveCamera(45, rect.width / rect.height, 0.1, 100);
       this.camera.position.z = 10;
-      this.camera.position.y = 0.3;
+      this.camera.position.y = 0.2;
 
-      // Renderer
+      // Renderer - transparent
       this.renderer = new THREE.WebGLRenderer({
         alpha: true,
         antialias: true,
@@ -92,20 +61,17 @@
       });
       this.renderer.setSize(rect.width, rect.height);
       this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      this.renderer.setClearColor(0x000000, 0);
+      
       this.container.appendChild(this.renderer.domElement);
-      this.renderer.domElement.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: grab;';
+      this.renderer.domElement.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;';
 
       // Lighting
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.95);
       this.scene.add(ambientLight);
 
-      // Create cards
       this.createCards();
-
-      // Events
       this.addEvents();
-
-      // Start
       this.animate();
     }
 
@@ -120,56 +86,59 @@
 
       this.items = items;
       this.cards = [];
-      
-      // Calculate total width for centering
-      this.totalWidth = (this.cardWidth + this.cardGap) * this.items.length - this.cardGap;
+      this.cardSpacing = this.cardWidth + this.cardGap;
+      this.totalScrollRange = this.cardSpacing * (this.items.length - 1);
 
       const loader = new THREE.TextureLoader();
 
-      this.items.forEach((item, index) => {
+      items.forEach((item, index) => {
         const cardGroup = new THREE.Group();
 
-        // Card mesh
+        // Card image
         const geometry = new THREE.PlaneGeometry(this.cardWidth, this.cardHeight);
+        const material = new THREE.MeshBasicMaterial({
+          map: null,
+          transparent: true,
+          side: THREE.DoubleSide,
+          opacity: 0
+        });
+
         const texture = loader.load(item.image,
           (tex) => {
             tex.colorSpace = THREE.SRGBColorSpace;
+            material.map = tex;
+            material.opacity = 1;
+            material.needsUpdate = true;
           },
           undefined,
           () => this.createFallbackTexture(item, material)
         );
 
-        const material = new THREE.MeshBasicMaterial({
-          map: texture,
-          transparent: true,
-          side: THREE.DoubleSide
-        });
-
         const mesh = new THREE.Mesh(geometry, material);
         mesh.userData = { index, item };
         cardGroup.add(mesh);
 
-        // Subtle shadow/depth layer
-        const shadowGeo = new THREE.PlaneGeometry(this.cardWidth + 0.08, this.cardHeight + 0.08);
-        const shadowMat = new THREE.MeshBasicMaterial({
+        // Subtle border/glow
+        const borderGeo = new THREE.PlaneGeometry(this.cardWidth + 0.05, this.cardHeight + 0.05);
+        const borderMat = new THREE.MeshBasicMaterial({
           color: 0x00b4a0,
           transparent: true,
-          opacity: 0.08
+          opacity: 0.15
         });
-        const shadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
-        shadowMesh.position.z = -0.02;
-        cardGroup.add(shadowMesh);
+        const borderMesh = new THREE.Mesh(borderGeo, borderMat);
+        borderMesh.position.z = -0.01;
+        cardGroup.add(borderMesh);
 
-        // Text label - positioned directly below card
+        // Text label below card
         const labelCanvas = document.createElement('canvas');
         labelCanvas.width = 512;
-        labelCanvas.height = 100;
+        labelCanvas.height = 110;
         const ctx = labelCanvas.getContext('2d');
-        ctx.clearRect(0, 0, 512, 100);
+        ctx.clearRect(0, 0, 512, 110);
 
-        // Main title
+        // Title
         ctx.fillStyle = this.options.textColor;
-        ctx.font = 'bold 32px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+        ctx.font = 'bold 34px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(item.text, 256, 35);
@@ -178,18 +147,20 @@
         if (item.subtitle) {
           ctx.fillStyle = '#5a8a8a';
           ctx.font = '20px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-          ctx.fillText(item.subtitle, 256, 70);
+          ctx.fillText(item.subtitle, 256, 75);
         }
 
         const labelTexture = new THREE.CanvasTexture(labelCanvas);
         labelTexture.minFilter = THREE.LinearFilter;
         const labelMaterial = new THREE.MeshBasicMaterial({
           map: labelTexture,
-          transparent: true
+          transparent: true,
+          opacity: 0
         });
-        const labelGeometry = new THREE.PlaneGeometry(2.5, 0.5);
+        const labelGeometry = new THREE.PlaneGeometry(2.4, 0.55);
         const labelMesh = new THREE.Mesh(labelGeometry, labelMaterial);
         labelMesh.position.y = -this.cardHeight / 2 - 0.5;
+        labelMesh.userData.isLabel = true;
         cardGroup.add(labelMesh);
 
         this.scene.add(cardGroup);
@@ -207,7 +178,8 @@
 
       const gradient = ctx.createLinearGradient(0, 0, 600, 400);
       gradient.addColorStop(0, '#e8f6f5');
-      gradient.addColorStop(1, '#d0f0ec');
+      gradient.addColorStop(0.5, '#c5e8e0');
+      gradient.addColorStop(1, '#a8d8c8');
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, 600, 400);
 
@@ -219,120 +191,98 @@
 
       const fallbackTexture = new THREE.CanvasTexture(canvas);
       material.map = fallbackTexture;
+      material.opacity = 1;
       material.needsUpdate = true;
     }
 
     updateCardPositions() {
-      const viewportWidth = this.getViewportWidth();
-      
+      // scrollProgress 0 到 1
+      // At 0: first card centered
+      // At 1: last card centered
+      const offsetX = this.scrollProgress * this.totalScrollRange;
+
       this.cards.forEach((card, i) => {
-        // Calculate base position
-        let x = (i * (this.cardWidth + this.cardGap)) - this.scroll.current;
+        // Target position: first card at 0, each next shifted by spacing
+        // We move all cards by -offsetX to simulate horizontal scroll
+        const baseX = i * this.cardSpacing;
+        const x = baseX - offsetX;
         
-        // Center the entire row
-        x -= this.totalWidth / 2;
-        x += this.cardWidth / 2;
+        // Center the row
+        const totalWidth = (this.items.length - 1) * this.cardSpacing;
+        const finalX = x - totalWidth / 2;
+        
+        card.position.x = finalX;
+        card.position.y = 0;
+        card.position.z = 0;
+        card.rotation.y = 0;
 
-        // Wrap around for infinite scroll
-        const itemSpacing = this.cardWidth + this.cardGap;
-        const halfTotal = this.totalWidth / 2 + itemSpacing;
-        while (x < -halfTotal) x += this.totalWidth + itemSpacing;
-        while (x > halfTotal) x -= this.totalWidth + itemSpacing;
-
-        // Position
-        card.position.x = x;
+        // Show/hide cards based on whether they're in the visible range
+        const distFromCenter = Math.abs(finalX);
+        const maxVisibleDist = 5.5; // Hide cards too far off-screen
         
-        // Subtle curve - cards at edges tilt slightly inward
-        const normalizedX = x / (viewportWidth / 3);
-        const absNormX = Math.abs(normalizedX);
+        const opacity = Math.max(0, 1 - distFromCenter / maxVisibleDist);
         
-        // Very subtle Y curve (cards dip slightly at edges)
-        card.position.y = -absNormX * absNormX * 0.15;
-        
-        // Subtle rotation toward center
-        card.rotation.y = -normalizedX * 0.12;
-        
-        // Scale: center cards full size, edge cards slightly smaller
-        const scale = 1 - absNormX * 0.1;
-        card.scale.setScalar(Math.max(0.85, scale));
-        
-        // Opacity fade at far edges
-        const opacity = Math.max(0.5, 1 - absNormX * 0.4);
-        card.children[0].material.opacity = opacity;
-        
-        // Z-order: center in front
-        card.position.z = (1 - absNormX) * 1.5;
+        if (card.children[0].material) {
+          card.children[0].material.opacity = opacity;
+        }
+        if (card.children[1] && card.children[1].material) {
+          card.children[1].material.opacity = opacity * 0.15;
+        }
+        // Label (last child)
+        const labelMesh = card.children[2];
+        if (labelMesh && labelMesh.material) {
+          labelMesh.material.opacity = opacity;
+        }
       });
-    }
-
-    getViewportWidth() {
-      const fov = this.camera.fov * (Math.PI / 180);
-      return 2 * Math.tan(fov / 2) * this.camera.position.z;
     }
 
     addEvents() {
-      const canvas = this.renderer.domElement;
+      // Track scroll position relative to container
+      this.updateScrollProgress = () => {
+        const rect = this.container.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+        
+        // Container starts at top: 0 (when fully out of view at top)
+        // When container is centered in viewport, scrollProgress = 0.5
+        // We want to map the container's vertical scroll position to 0-1
+        
+        // Container height in scroll: how much we need to scroll to fully reveal it
+        // Trigger: start scrolling when container enters viewport, finish when it leaves
+        
+        // Calculate: how far the container has scrolled past the start of viewport
+        // 0 = container top at viewport top
+        // windowHeight = container bottom at viewport bottom
+        const scrollDistance = -rect.top; // positive when scrolled past
+        const triggerDistance = rect.height + windowHeight; // total scroll range
+        
+        let progress = scrollDistance / (rect.height * 0.5);
+        progress = Math.max(0, Math.min(1, progress));
+        
+        this.targetProgress = progress;
+        this.isInView = rect.top < windowHeight && rect.bottom > 0;
+      };
 
-      // Mouse
-      canvas.addEventListener('mousedown', (e) => {
-        this.isDragging = true;
-        this.startX = e.clientX;
-        this.scrollStart = this.scroll.target;
-        canvas.style.cursor = 'grabbing';
-      });
-
-      window.addEventListener('mousemove', (e) => {
-        if (!this.isDragging) return;
-        const delta = (e.clientX - this.startX) * 0.005 * this.options.scrollSpeed;
-        this.scroll.target = this.scrollStart - delta;
-      });
-
-      window.addEventListener('mouseup', () => {
-        this.isDragging = false;
-        canvas.style.cursor = 'grab';
-      });
-
-      // Touch
-      canvas.addEventListener('touchstart', (e) => {
-        this.isDragging = true;
-        this.startX = e.touches[0].clientX;
-        this.scrollStart = this.scroll.target;
-      }, { passive: true });
-
-      window.addEventListener('touchmove', (e) => {
-        if (!this.isDragging) return;
-        const delta = (e.touches[0].clientX - this.startX) * 0.005 * this.options.scrollSpeed;
-        this.scroll.target = this.scrollStart - delta;
-      }, { passive: true });
-
-      window.addEventListener('touchend', () => {
-        this.isDragging = false;
-      });
-
-      // Wheel
-      canvas.addEventListener('wheel', (e) => {
-        this.scroll.target += e.deltaY * 0.002;
-      }, { passive: true });
-
-      // Resize
+      window.addEventListener('scroll', this.updateScrollProgress, { passive: true });
       window.addEventListener('resize', () => {
         const rect = this.container.getBoundingClientRect();
         this.camera.aspect = rect.width / rect.height;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(rect.width, rect.height);
       });
+
+      // Initial calculation
+      this.updateScrollProgress();
     }
 
     animate() {
       requestAnimationFrame(() => this.animate());
 
-      // Smooth scroll
-      const diff = this.scroll.target - this.scroll.current;
-      this.scroll.current += diff * this.options.scrollEase;
+      // Smooth interpolation
+      const diff = this.targetProgress - this.scrollProgress;
+      this.scrollProgress += diff * 0.08;
 
       this.updateCardPositions();
       this.renderer.render(this.scene, this.camera);
     }
   }
 })();
-// v2 1783587799

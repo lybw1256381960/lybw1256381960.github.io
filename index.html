@@ -395,7 +395,7 @@
                 <p>从用户研究、系统策略、原型表达到成果转化。</p>
             </div>
             <!-- 项目 CircularGallery -->
-            <div id="circular-gallery-container" style="height: 700px; position: relative; margin: 3rem 0;"></div>
+            <div id="circular-gallery-container" style="height: 600px; position: relative; margin: 3rem 0;"></div>
 
             <!-- 项目文字信息 -->
             <div class="projects-detail-row">
@@ -672,31 +672,28 @@
     root.render(<App />);
     </script>
 
-    <!-- CircularGallery Init -->
+    <!-- ScrollHorizontalGallery Init -->
     <script>
     (function() {
         function initGallery() {
             var container = document.getElementById('circular-gallery-container');
-            if (!container || !window.CircularGallery) {
-                console.error('CircularGallery: container or library not found');
+            if (!container || !window.ScrollHorizontalGallery) {
+                console.error('ScrollHorizontalGallery: container or library not found');
                 return;
             }
 
             var projectItems = [
-                { image: 'assets/project-bamboo-overview.jpg', text: '竹构美好' },
-                { image: 'assets/project-bamboo-detail.jpg', text: '竹艺数字化' },
-                { image: 'assets/project-secondlife-detail.jpg', text: '第二次生命' },
-                { image: 'assets/project-maigua-detail.jpg', text: '变卦' },
-                { image: 'assets/project-drone-detail.jpg', text: '穿隧蜂' }
+                { image: 'assets/project-bamboo-overview.jpg', text: '竹构美好', subtitle: '非遗数字化服务' },
+                { image: 'assets/project-bamboo-detail.jpg', text: '竹艺数字化', subtitle: 'AI编辑器' },
+                { image: 'assets/project-secondlife-detail.jpg', text: '第二次生命', subtitle: '可持续包装' },
+                { image: 'assets/project-maigua-detail.jpg', text: '变卦', subtitle: 'NFC教育棋' },
+                { image: 'assets/project-drone-detail.jpg', text: '穿隧蜂', subtitle: '智能植保' }
             ];
 
-            window.CircularGallery.init(container, {
+            window.ScrollHorizontalGallery.init(container, {
                 items: projectItems,
-                bend: 2,
                 textColor: '#2d5a5a',
-                borderRadius: 0.08,
-                scrollSpeed: 1.5,
-                scrollEase: 0.06
+                scrollMultiplier: 1.2
             });
         }
 
